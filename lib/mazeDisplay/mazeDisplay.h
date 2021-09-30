@@ -2,13 +2,10 @@
 #define DISPLAY_H
 
 // standard import
-#include <stdio.h>
 // custom import
 #include "../BetterTerminal/betterTerminal.h"
-// NONE
-// const
-// NONE
-// typedef
-// NONE
+#include "../maze/maze.h"
+
+void displayMaze(maze maze);
 
 #endif // DISPLAY_H
