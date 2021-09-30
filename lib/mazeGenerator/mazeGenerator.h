@@ -1,0 +1,3 @@
+#ifndef MAZE_GENERATOR_H
+#define MAZE_GENERATOR_H
+#endif //MAZE_GENERATOR_H

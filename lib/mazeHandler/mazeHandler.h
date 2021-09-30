@@ -1,0 +1,3 @@
+#ifndef MAZE_HANDLER_H
+#define MAZE_HANDLER_H
+#endif //MAZE_HANDLER_H
