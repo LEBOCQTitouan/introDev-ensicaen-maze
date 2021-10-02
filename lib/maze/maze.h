@@ -8,6 +8,7 @@ typedef enum {
     MAZE_EXIT       = '-'
 } mazeElement;
 
+
 typedef struct mazes
 {
     mazeElement ** elements;
@@ -15,5 +16,7 @@ typedef struct mazes
     int width;
     int height;
 } maze;
+
+mazeElement getMazeElementAt(maze maze, int x, int y);
 
 #endif //MAZE_H

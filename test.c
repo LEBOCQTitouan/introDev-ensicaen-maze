@@ -11,16 +11,24 @@
 #define MIN_SIZE 5
 #define MAX_SIZE 20
 
+/*
+- check height / width => != 0 / between MIN and MAX size
+- check elements => NULL ? / size = real size ?
+*/
+
 int main(int argc, char const *argv[])
 {
-    /** defining random values for the maze generation */
+    /** Etape 1 */
+    maze test11x25maze = generateMaze(25, 11);
+    displayMaze(test11x25maze, DETAILLED_MAZE_DISPLAY);
+
+    /** defining random values for the random maze generation */
     srand(time(NULL));
     int width = (rand() % MAX_SIZE) + MIN_SIZE;
     int height = (rand() % MAX_SIZE) + MIN_SIZE;
-    printf("[INFO] a maze of size %d x %d (width x height) will be generated\n", width, height);
 
-    maze testMaze = generateMaze(width, height);
-    displayMaze(testMaze);
+    maze testRandomMaze = generateMaze(width, height);
+    displayMaze(testRandomMaze, DETAILLED_MAZE_DISPLAY);
 
     return 0;
 }
