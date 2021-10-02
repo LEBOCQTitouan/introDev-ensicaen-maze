@@ -62,7 +62,6 @@ int compareSidesOfWall(matrix m, wall w) {
         i2 = getMatrixIndexFromMazeIndex(w.ineighbour2),
         j2 = getMatrixIndexFromMazeIndex(w.jneighbour2);
 
-    printf("matrix index [%d %d | %d %d]\n", i1, j1, i2, j2);
     if (m.columns[i1][j1] == m.columns[i2][j2]) return 0;
     else if (m.columns[i1][j1] > m.columns[i2][j2]) return 1;
     else return -1;
@@ -128,7 +127,6 @@ maze generateMaze(int width, int height) {
             }
 
             allWalls[numberOfWalls - 1] = newWall;
-            printf("wall found [i1 %d j1 %d | i2 %d j2 %d]\n", newWall.ineighbour1, newWall.jneighbour1, newWall.ineighbour2, newWall.jneighbour2);
         }
     }
 
@@ -136,12 +134,9 @@ maze generateMaze(int width, int height) {
     int compareSidesOfWallValue;
     do
     {
-        displayMaze(newMaze, DETAILLED_MAZE_DISPLAY);
-        printMatrix(numMatrix);
         // pick a wall randomly
         randomWallIndex = rand() % numberOfWalls;
         wall choice = allWalls[randomWallIndex];
-        printf("wall [%d %d | %d %d]\n", choice.ineighbour1, choice.jneighbour1, choice.ineighbour2, choice.jneighbour2);
         // compare both side of the wall
         compareSidesOfWallValue = compareSidesOfWall(numMatrix, choice);
 
