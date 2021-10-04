@@ -132,15 +132,15 @@ maze generateMaze(int width, int height) {
 
     int randomWallIndex;
     int compareSidesOfWallValue;
-    do
-    {
+    int numberOfIteration = 0;
+    do {
         // pick a wall randomly
         randomWallIndex = rand() % numberOfWalls;
         wall choice = allWalls[randomWallIndex];
         // compare both side of the wall
         compareSidesOfWallValue = compareSidesOfWall(numMatrix, choice);
 
-       if (compareSidesOfWall != 0) {
+       if (compareSidesOfWallValue != 0) {
            // matrix edition
             int i1 = getMatrixIndexFromMazeIndex(choice.ineighbour1),
                 j1 = getMatrixIndexFromMazeIndex(choice.jneighbour1),
@@ -157,7 +157,6 @@ maze generateMaze(int width, int height) {
                         if (numMatrix.columns[i][j] == oldValue) numMatrix.columns[i][j] = numMatrix.columns[i1][j1];
                     }
                 }
-                
             } else { // n2 > n1
                 int oldValue = numMatrix.columns[i2][j2];
                 numMatrix.columns[i2][j2] = numMatrix.columns[i1][j1];
@@ -169,14 +168,14 @@ maze generateMaze(int width, int height) {
                     }
                     
                 }
-                
             }
             // make the wall in the maze
             newMaze.elements[(choice.ineighbour1 + choice.ineighbour2) / 2][(choice.jneighbour1 + choice.jneighbour2) / 2] = MAZE_CORRIDOR;
             allWalls[randomWallIndex] = allWalls[numberOfWalls - 1];
-            numberOfWalls --;
+            numberOfWalls--;
+            numberOfIteration++;
        }
-    } while (sumMatrix(numMatrix) != 0);
+    } while (numberOfIteration < ((newMaze.height/2) * (newMaze.width/2)) - 1);
 
     return newMaze;
 }
