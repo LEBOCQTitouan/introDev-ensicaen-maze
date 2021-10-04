@@ -11,13 +11,13 @@ LIB=lib/
 all: $(EXEC)
 
 # normal app
-app: app.o $(LIB)maze/maze.c $(LIB)mazeDisplay/mazeDisplay.c $(LIB)mazeGenerator/mazeGenerator $(LIB)BetterTerminal/betterTerminal.c
-	$(CC) -o app app.o $(LIB)maze/maze.c $(LIB)mazeDisplay/mazeDisplay.c $(LIB)mazeGenerator/mazeGenerator $(LIB)BetterTerminal/betterTerminal.c $(LDFLAGS)
+app: app.o $(LIB)maze/maze.c $(LIB)mazeDisplay/mazeDisplay.c $(LIB)mazeGenerator/mazeGenerator $(LIB)BetterTerminal/betterTerminal.c $(LIB)mazeHandler/mazeHandler.c
+	$(CC) -o app app.o $(LIB)maze/maze.c $(LIB)mazeDisplay/mazeDisplay.c $(LIB)mazeGenerator/mazeGenerator $(LIB)BetterTerminal/betterTerminal.c $(LIB)mazeHandler/mazeHandler.c $(LDFLAGS)
 	make clean
 
 # make file for TDD
-test: test.o $(LIB)maze/maze.c $(LIB)minunit/minunit.h $(LIB)mazeDisplay/mazeDisplay.c $(LIB)mazeGenerator/mazeGenerator.c $(LIB)BetterTerminal/betterTerminal.c
-	$(CC) -lrt -lm -o test test.o $(LIB)maze/maze.c $(LIB)minunit/minunit.h $(LIB)mazeDisplay/mazeDisplay.c $(LIB)mazeGenerator/mazeGenerator.c $(LIB)BetterTerminal/betterTerminal.c $(LDFLAGS)
+test: test.o $(LIB)maze/maze.c $(LIB)minunit/minunit.h $(LIB)mazeDisplay/mazeDisplay.c $(LIB)mazeGenerator/mazeGenerator.c $(LIB)BetterTerminal/betterTerminal.c $(LIB)mazeHandler/mazeHandler.c
+	$(CC) -lrt -lm -o test test.o $(LIB)maze/maze.c $(LIB)minunit/minunit.h $(LIB)mazeDisplay/mazeDisplay.c $(LIB)mazeGenerator/mazeGenerator.c $(LIB)BetterTerminal/betterTerminal.c $(LIB)mazeHandler/mazeHandler.c $(LDFLAGS)
 	make clean
 
 # compiling c mains
