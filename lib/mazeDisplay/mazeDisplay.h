@@ -5,13 +5,10 @@
 // custom import
 #include "../BetterTerminal/betterTerminal.h"
 #include "../maze/maze.h"
+#include "../mazeHandler/mazeHandler.h"
 
-typedef enum {
-    MINIMALIST_MAZE_DISPLAY,
-    DEFAULT_MAZE_DISPLAY,
-    DETAILLED_MAZE_DISPLAY
-} mazeDisplayType;
+void displayMaze(maze maze);
 
-void displayMaze(maze maze, mazeDisplayType displayType);
+void displayMazeWithPlayer(mazeHandler handler);
 
 #endif // DISPLAY_H

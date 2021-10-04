@@ -1,59 +1,41 @@
 #include "mazeDisplay.h"
 
-void displayMaze(maze maze, mazeDisplayType displayType) {
-    if (displayType == DETAILLED_MAZE_DISPLAY) {
-        printfColored(YELLOW, DEFAULT_COLOR, BOLD, "(%d (width) x %d (height))\n", maze.width, maze.height);
-        for (int i = 0; i < maze.height; i++)
+void displayMazeInfos(maze m) {
+    printfColored(YELLOW, DEFAULT_COLOR, BOLD, "(%d x %d)\n", m.height, m.width);
+}
+
+void displayMaze(maze m) {
+    for (int j = 0; j < m.height; j++)
+    {
+        for (int i = 0; i < m.width; i++)
         {
-            if (i == 0) {
-                printf("    ");
-                for (int j = 0; j < maze.width; j++) printf("%d", j % 10);
-                printf("\n");
-                printf("    ");
-                for (int j = 0; j < maze.width; j++) printf("v");
-                printf("\n");
-            }
-            printf("%2d> ", i);
-            for (int j = 0; j < maze.width; j++)
-            {
-                if (maze.elements[j][i] == MAZE_ENTRANCE) {
-                    printfColored(GREEN, DEFAULT_COLOR, BOLD, "%c", MAZE_ENTRANCE);
-                } else if (maze.elements[j][i] == MAZE_EXIT) {
-                    printfColored(RED, DEFAULT_COLOR, BOLD, "%c", MAZE_EXIT);
-                } else if (maze.elements[j][i] == MAZE_WALL) {
-                    printfColored(WHITE, DEFAULT_COLOR, BOLD, "%c", MAZE_WALL);
-                } else {
-                    printfColored(DEFAULT_COLOR, YELLOW, DEFAULT_STYLE, "%c", MAZE_CORRIDOR);
-                }
-            }
-            printf("\n");
+            if (m.elements[i][j] == MAZE_ENTRANCE) printfColored(WHITE, GREEN, BOLD, "%c%c", MAZE_ENTRANCE, MAZE_ENTRANCE);
+            else if (m.elements[i][j] == MAZE_EXIT) printfColored(WHITE, RED, BOLD, "%c%c", MAZE_EXIT, MAZE_EXIT);
+            else if (m.elements[i][j] == MAZE_CORRIDOR) printfColored(BLACK, BLACK, BOLD, "%c%c", MAZE_CORRIDOR, MAZE_CORRIDOR);
+            else printfColored(WHITE, WHITE, BOLD, "%c%c", MAZE_WALL, MAZE_WALL);
         }
-    } else if (displayType == MINIMALIST_MAZE_DISPLAY) {
-        for (int i = 0; i < maze.height; i++)
-        {
-            for (int j = 0; j < maze.width; j++)
-            {
-                printf("%c", maze.elements[j][i]);
-            }
-            printf("\n");
-        }
-    } else {
-       for (int i = 0; i < maze.height; i++)
-       {
-           for (int j = 0; j < maze.width; j++)
-            {
-                if (maze.elements[j][i] == MAZE_ENTRANCE) {
-                    printfColored(GREEN, DEFAULT_COLOR, BOLD, "%c", MAZE_ENTRANCE);
-                } else if (maze.elements[j][i] == MAZE_EXIT) {
-                    printfColored(RED, DEFAULT_COLOR, BOLD, "%c", MAZE_EXIT);
-                } else if (maze.elements[j][i] == MAZE_WALL) {
-                    printfColored(WHITE, DEFAULT_COLOR, BOLD, "%c", MAZE_WALL);
-                } else {
-                    printfColored(DEFAULT_COLOR, YELLOW, DEFAULT_STYLE, "%c", MAZE_CORRIDOR);
-                }
-            }
-            printf("\n");
-       }
-       
+        printf("\n");
     }
+    displayMazeInfos(m);
+}
+
+
+void displayMazeWithPlayer(mazeHandler handler) {
+    maze m = (*handler.maze);
+    for (int j = 0; j < m.height; j++)
+    {
+        for (int i = 0; i < m.width; i++)
+        {
+            if (i == handler.mazePlayer.position.x && j == handler.mazePlayer.position.y) printfColored(DEFAULT_COLOR, CYAN, BOLD, "Pl");
+            else if (m.elements[i][j] == MAZE_ENTRANCE) printfColored(WHITE, GREEN, BOLD, "%c%c", MAZE_ENTRANCE, MAZE_ENTRANCE);
+            else if (m.elements[i][j] == MAZE_EXIT) printfColored(WHITE, RED, BOLD, "%c%c", MAZE_EXIT, MAZE_EXIT);
+            else if (m.elements[i][j] == MAZE_CORRIDOR) printfColored(BLACK, BLACK, BOLD, "%c%c", MAZE_CORRIDOR, MAZE_CORRIDOR);
+            else printfColored(WHITE, WHITE, BOLD, "%c%c", MAZE_WALL, MAZE_WALL);
+        }
+        printf("\n");
+    }
+    displayMazeInfos(m);
+    printf("\n");
+    printfColored(DEFAULT_COLOR, CYAN, BOLD, "P");
+    printfColored(DEFAULT_COLOR, DEFAULT_COLOR, BOLD, " : Player\n");
 }
