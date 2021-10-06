@@ -18,6 +18,7 @@ int * saveFileSkipIndex = NULL;
 int skipIndexSize = 0;
 int loadMazeCurrentFocus = 0;
 // play
+mazeHandler menuMazeHandler = {0};
 
 /** selection event listenner */
 void selectionDown() {
@@ -119,6 +120,7 @@ void loadUp() {
         if (loadMazeCurrentFocus < 0) loadMazeCurrentFocus = loadMazeNumberOfFile;
     } while (isInSkipIndex(loadMazeCurrentFocus));
 }
+
 void loadEnter() {
     if (loadMazeCurrentFocus == loadMazeNumberOfFile) {
         loadMazeNumberOfFile = 0;
@@ -128,11 +130,46 @@ void loadEnter() {
         loadMazeCurrentFocus = 0;
 
         changeMenu(SELECTION);
+    } else {
+        char * fileNameWithEXT = saveFiles[loadMazeCurrentFocus].d_name;
+        int size = sizeof(char) * (strlen(fileNameWithEXT) - strlen(MAZE_EXT));
+        char * fileName = calloc(size, sizeof(char));
+        memcpy(fileName, fileNameWithEXT, size);
+        menuMaze = loadMAze(fileName);
+
+        changeMenu(SELECTION);
     }
 }
 
+/** play event listenner*/
 
+void checkEndGame() {
+    if (menuMazeHandler.maze->elements[menuMazeHandler.mazePlayer.position.x][menuMazeHandler.mazePlayer.position.y] == MAZE_EXIT) {
+        changeMenu(SELECTION);
+    }
+}
 
+void playUp() {
+    movePlayer(&menuMazeHandler, TOP);
+    checkEndGame();
+}
+
+void playDown() {
+    movePlayer(&menuMazeHandler, BOTTOM);
+    checkEndGame();
+}
+
+void playLeft() {
+    movePlayer(&menuMazeHandler, LEFT);
+    checkEndGame();
+}
+
+void playRight() {
+    movePlayer(&menuMazeHandler, RIGHT);
+    checkEndGame();
+}
+
+/** end event listenners */
 
 void changeMenu(menuType newMenu) {
     currentMenu = newMenu;
@@ -173,9 +210,14 @@ void changeMenu(menuType newMenu) {
     
     case LOAD_MAZE:
         // opening save folder
+        loadMazeNumberOfFile = 0;
+        saveFiles = NULL;
+        saveFileSkipIndex = NULL;
+        skipIndexSize = 0;
+        loadMazeCurrentFocus = 0;
+
         DIR * d = NULL;
         struct dirent *dir;
-                printf("%d\n", loadMazeNumberOfFile);
         d = opendir("./data/maze");
 
         if (d) {
@@ -209,6 +251,14 @@ void changeMenu(menuType newMenu) {
         arrowUp.func.void_function = &loadUp;
         enterPressed.func.void_function = &loadEnter;
         break;
+    case PLAY:
+        menuMazeHandler = initMazeMovement(&menuMaze);
+
+        arrowDown.func.void_function = &playDown;
+        arrowUp.func.void_function = &playUp;
+        arrowLeft.func.void_function = &playLeft;
+        arrowRight.func.void_function = &playRight;
+        break;
     default: break;
     }
 
@@ -225,19 +275,33 @@ void display() {
     {
     case SELECTION:
         printfColored(BLACK, WHITE, UNDERLINE, "- SELECTION -\n");
+
         if (menuMaze.height != 0 && menuMaze.width != 0) displayMaze(menuMaze);
+
         if (selectionChoice == CREATE_MAZE) {
-            printfColored(BLACK, WHITE, BOLD, "Create maze\n");
-        } else printfColored(WHITE, DEFAULT_COLOR, BOLD, "Create maze\n");
+            printfColored(BLACK, WHITE, BOLD, "Create maze");
+        } else {
+            printfColored(WHITE, DEFAULT_COLOR, BOLD, "Create maze");
+        }
+        printf("\n");
         if (selectionChoice == LOAD_MAZE) {
-            printfColored(BLACK, WHITE, BOLD, "Load maze\n");
-        } else printfColored(WHITE, DEFAULT_COLOR, BOLD, "Load maze\n");
+            printfColored(BLACK, WHITE, BOLD, "Load maze");
+        } else {
+            printfColored(WHITE, DEFAULT_COLOR, BOLD, "Load maze");
+        }
+        printf("\n");
         if (selectionChoice == PLAY) {
-            printfColored(BLACK, WHITE, BOLD, "Play\n");
-        } else printfColored(WHITE, DEFAULT_COLOR, BOLD, "Play\n");
+            printfColored(BLACK, WHITE, BOLD, "Play");
+        } else {
+            printfColored(WHITE, DEFAULT_COLOR, BOLD, "Play");
+        }
+        printf("\n");
         if (selectionChoice == EXIT) {
-            printfColored(BLACK, WHITE, BOLD, "Exit\n");
-        } else printfColored(WHITE, DEFAULT_COLOR, BOLD, "Exit\n");
+            printfColored(BLACK, WHITE, BOLD, "Exit");
+        } else {
+            printfColored(WHITE, DEFAULT_COLOR, BOLD, "Exit");
+        }
+        printf("\n");
         break;
     case CREATE_MAZE:
         printfColored(BLACK, WHITE, UNDERLINE, "- CREATE MAZE -\n");
@@ -300,7 +364,8 @@ void display() {
             {
                 if (saveFiles[i].d_type == DT_REG) {
                     if (loadMazeCurrentFocus == i) {
-                        printfColored(WHITE, YELLOW, UNDERLINE, saveFiles[i].d_name);
+                        printfColored(WHITE, GREEN, BOLD, saveFiles[i].d_name);
+                        printfColored(GREEN, DEFAULT_COLOR, BOLD, "[load this save]");
                     } else printfColored(YELLOW, DEFAULT_COLOR, UNDERLINE, saveFiles[i].d_name);
                     printf("\n");
                 }
@@ -319,14 +384,17 @@ void display() {
         break;
     case PLAY:
         printfColored(BLACK, WHITE, UNDERLINE, "- PLAY -\n");
+        displayMazeWithPlayer(menuMazeHandler);
         break;
     default: break;
     }
+    printf("\n");
 }
 
 void launchMenu() {
 
     enableTerminalRawMode();
+    makeCursorInvisible();
     // setup for the menu
     changeMenu(SELECTION);
     // action in the terminal
@@ -334,7 +402,8 @@ void launchMenu() {
     {
         // clean the termial for new display
         home();
-        clearAllTerminal();
+        clearTerminal();
+        // clearAllTerminal();
 
         display();
 
@@ -344,6 +413,6 @@ void launchMenu() {
             errorMessage = NULL;
         }
     }
-
+    makeCursorVisible();
     disableTerminalRawMode();
 }

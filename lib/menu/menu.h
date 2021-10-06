@@ -7,11 +7,11 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "../mazeHandler/mazeHandler.h"
-#include "../rawTerminal/rawTerminal.h"
 #include "../BetterTerminal/betterTerminal.h"
-#include "../mazeDisplay/mazeDisplay.h"
 #include "../mazeGenerator/mazeGenerator.h"
+#include "../rawTerminal/rawTerminal.h"
+#include "../mazeDisplay/mazeDisplay.h"
+#include "../mazeHandler/mazeHandler.h"
 
 typedef enum {
     SELECTION,

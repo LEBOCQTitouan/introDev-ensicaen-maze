@@ -54,3 +54,5 @@ dkms.conf
 # compliled output
 test
 app
+# save folder
+data/maze/

@@ -14,6 +14,16 @@
 #define MIN_SIZE 5
 #define MAX_SIZE 1000
 
+void gen_random(char *s, const int len) {
+    static const char alphanum[] =     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    for (int i = 0; i < len; ++i) {
+        s[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
+    }
+
+    s[len] = 0;
+}
+
 // mu_check(condition): will pass if the condition is evaluated to true, otherwise it will show the condition as the error message
 
 // mu_fail(message): will fail and show the message
@@ -62,9 +72,25 @@
 //     MU_RUN_TEST(odd_size_check);
 // }
 
-// MU_TEST_SUITE(maze_handler_suite) {
-//     // TODO
-// }
+MU_TEST(save_maze_check) {
+    maze checkMaze = generateMaze(rand() % 100 + 5, rand() % 100 + 5);
+
+    char filename[20] = {0};
+    gen_random(filename, 20);
+    int saveStatus = saveMaze(filename, checkMaze);
+
+    maze checkMazeLoad = loadMAze(filename);
+
+    if (compareMaze(checkMaze, checkMazeLoad) != true) mu_fail("Loaded maze is not equal to starting maze");
+}
+
+MU_TEST_SUITE(maze_handler_suite) {
+    for (int i = 0; i < 10; i++)
+    {
+        MU_RUN_TEST(save_maze_check);
+    }
+}
+
 
 int main(int argc, char const *argv[]){
     srand(time(NULL));
@@ -75,6 +101,12 @@ int main(int argc, char const *argv[]){
     /**
      * dev
     */
+    
+    // maze checkMaze = generateMaze(rand() % 100 + 5, rand() % 100 + 5);
+
+    // char filename[20] = {0};
+    // gen_random(filename, 20);
+    // int saveStatus = saveMaze(filename, checkMaze);
 
     launchMenu();
 

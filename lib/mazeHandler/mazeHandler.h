@@ -38,6 +38,8 @@ maze loadMAze(char * name);
 
 int saveMaze(char * name, maze m);
 
+bool compareMaze(maze m1, maze m2);
+
 mazeHandler initMazeMovement(maze * m);
 
 bool movePlayer(mazeHandler * handler, directionPlayer direction);

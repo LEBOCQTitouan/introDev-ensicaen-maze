@@ -71,47 +71,24 @@ mazeHandler initMazeMovement(maze * m) {
 }
 
 bool movePlayer(mazeHandler * handler, directionPlayer direction) {
-    switch (direction)
-    {
-    case TOP:
-        if (
-            ((*handler).mazePlayer.position.y > 0
-            || (*handler).mazePlayer.position.y + 1 < (*handler).maze->height - 1)
-            && (*handler).maze->elements[(*handler).mazePlayer.position.x][(*handler).mazePlayer.position.y - 1] != MAZE_WALL
-        ) {
-            (*handler).mazePlayer.position.y--;
-        } else return false;
-        break;
-    case BOTTOM:
-        if (
-            ((*handler).mazePlayer.position.y > 0
-            || (*handler).mazePlayer.position.y + 1 < (*handler).maze->height - 1)
-            && (*handler).maze->elements[(*handler).mazePlayer.position.x][(*handler).mazePlayer.position.y + 1] != MAZE_WALL
-        ) {
-            (*handler).mazePlayer.position.y++;
-        } else return false;
-        break;
-    case LEFT:
-        if (
-            ((*handler).mazePlayer.position.y > 0
-            || (*handler).mazePlayer.position.y + 1 < (*handler).maze->height - 1)
-            && (*handler).maze->elements[(*handler).mazePlayer.position.x - 1][(*handler).mazePlayer.position.y] != MAZE_WALL
-        ) {
-            (*handler).mazePlayer.position.x--;
-        } else return false;
-        break;
-    case RIGHT:
-        if (
-            ((*handler).mazePlayer.position.y > 0
-            || (*handler).mazePlayer.position.y + 1 < (*handler).maze->height - 1)
-            && (*handler).maze->elements[(*handler).mazePlayer.position.x + 1][(*handler).mazePlayer.position.y - 1] != MAZE_WALL
-        ) {
-            (*handler).mazePlayer.position.x++;
-        } else return false;
-        break;
-    default: return false;
+    if (isPossibleDirection(*handler, direction)) {
+        switch (direction)
+        {
+        case TOP: 
+            handler->mazePlayer.position.y--;
+            break;
+        case BOTTOM:
+            handler->mazePlayer.position.y++;
+            break;
+        case LEFT:
+            handler->mazePlayer.position.x--;
+            break;
+        case RIGHT:
+            handler->mazePlayer.position.x++;
+            break;
+        default: break;
+        }
     }
-    return true;
 }
 
 bool isInMazeCoord(maze m, int x, int y) {
@@ -122,22 +99,35 @@ bool isPossibleDirection(mazeHandler handler, directionPlayer direction) {
     switch (direction)
     {
     case TOP: return (
-            isInMazeCoord((*handler.maze), handler.mazePlayer.position.x, handler.mazePlayer.position.y - 1)
+            isInMazeCoord(*handler.maze, handler.mazePlayer.position.x, handler.mazePlayer.position.y - 1)
             && handler.maze->elements[handler.mazePlayer.position.x][handler.mazePlayer.position.y - 1] != MAZE_WALL
         );
     case BOTTOM: return (
-            isInMazeCoord((*handler.maze), handler.mazePlayer.position.y > 0, handler.mazePlayer.position.y + 1 < handler.maze->height - 1)
+            isInMazeCoord(*handler.maze, handler.mazePlayer.position.x, handler.mazePlayer.position.y + 1)
             && handler.maze->elements[handler.mazePlayer.position.x][handler.mazePlayer.position.y + 1] != MAZE_WALL
         );
     case LEFT: return (
-            isInMazeCoord((*handler.maze), handler.mazePlayer.position.x > 0, handler.mazePlayer.position.x + 1 < handler.maze->height - 1)
+            isInMazeCoord(*handler.maze, handler.mazePlayer.position.x - 1, handler.mazePlayer.position.y)
             && handler.maze->elements[handler.mazePlayer.position.x - 1][handler.mazePlayer.position.y] != MAZE_WALL
         );
     case RIGHT: return (
-            isInMazeCoord((*handler.maze), handler.mazePlayer.position.x > 0, handler.mazePlayer.position.x + 1 < handler.maze->height - 1)
+            isInMazeCoord(*handler.maze, handler.mazePlayer.position.x + 1, handler.mazePlayer.position.y)
             && handler.maze->elements[handler.mazePlayer.position.x + 1][handler.mazePlayer.position.y] != MAZE_WALL
         );
     
     default: return false;
     }
+}
+
+bool compareMaze(maze m1, maze m2) {
+    if (m1.height != m2.height) return false;
+    if (m1.width != m2.width) return false;
+    for (int i = 0; i < m1.width; i++)
+    {
+        for (int j = 0; j < m1.height; j++)
+        {
+            if (m1.elements[i][j] != m2.elements[i][j]) return false;
+        }
+    }
+    return true;
 }
