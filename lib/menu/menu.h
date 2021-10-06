@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <dirent.h> 
+#include <string.h>
+#include <stdbool.h>
 
 #include "../mazeHandler/mazeHandler.h"
 #include "../rawTerminal/rawTerminal.h"

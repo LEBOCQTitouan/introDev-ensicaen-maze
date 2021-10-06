@@ -13,7 +13,9 @@ int mazeCreationCurrentFocus = 0;
 maze * newMaze = NULL;
 // load maze
 int loadMazeNumberOfFile = 0;
-char ** fileNames = NULL;
+struct dirent * saveFiles = NULL;
+int * saveFileSkipIndex = NULL;
+int skipIndexSize = 0;
 int loadMazeCurrentFocus = 0;
 // play
 
@@ -37,10 +39,12 @@ void createDown() {
     mazeCreationCurrentFocus++;
     mazeCreationCurrentFocus = mazeCreationCurrentFocus % MAZE_CREATION_FOCUS_MAX;
 }
+
 void createUp() {
     mazeCreationCurrentFocus--;
     if (mazeCreationCurrentFocus < 0) mazeCreationCurrentFocus = MAZE_CREATION_FOCUS_MAX - 1;
 }
+
 void createLeft() {
     switch (mazeCreationCurrentFocus)
     {
@@ -71,6 +75,7 @@ void createRight() {
         break;
     default: break;
     }}
+
 void createEnter() {
     switch (mazeCreationCurrentFocus)
     {
@@ -87,6 +92,47 @@ void createEnter() {
     default: break;
     }
 }
+
+/** load maze event listenner */
+// filename [suppr] del file
+// dnt print all files but portion with an indicator showing there are more
+int isInSkipIndex(int index) {
+    for (int i = 0; i < skipIndexSize; i++)
+    {
+        if (saveFileSkipIndex[i] == index) return 1;
+    }
+    return 0;
+}
+
+void loadDown() {
+    do
+    {
+        loadMazeCurrentFocus++;
+        loadMazeCurrentFocus = loadMazeCurrentFocus % (loadMazeNumberOfFile + 1);
+    } while (isInSkipIndex(loadMazeCurrentFocus));
+}
+
+void loadUp() {
+    do
+    {
+        loadMazeCurrentFocus--;
+        if (loadMazeCurrentFocus < 0) loadMazeCurrentFocus = loadMazeNumberOfFile;
+    } while (isInSkipIndex(loadMazeCurrentFocus));
+}
+void loadEnter() {
+    if (loadMazeCurrentFocus == loadMazeNumberOfFile) {
+        loadMazeNumberOfFile = 0;
+        saveFiles = NULL;
+        saveFileSkipIndex = NULL;
+        skipIndexSize = 0;
+        loadMazeCurrentFocus = 0;
+
+        changeMenu(SELECTION);
+    }
+}
+
+
+
 
 void changeMenu(menuType newMenu) {
     currentMenu = newMenu;
@@ -109,10 +155,6 @@ void changeMenu(menuType newMenu) {
         arrowUp.func.void_function = &selectionUp;
         enterPressed.func.void_function = &enterSelection;
 
-        assignActionToKeyBoardInput(INPUT_ARROW_DOWN, &arrowDown);
-        assignActionToKeyBoardInput(INPUT_ARROW_UP, &arrowUp);
-        assignActionToKeyBoardInput(INPUT_ENTER, &enterPressed);
-
         selectionChoice = CREATE_MAZE;
         break;
     
@@ -126,16 +168,55 @@ void changeMenu(menuType newMenu) {
         arrowRight.func.void_function = &createRight;
         enterPressed.func.void_function = &createEnter;
 
-        assignActionToKeyBoardInput(INPUT_ARROW_DOWN, &arrowDown);
-        assignActionToKeyBoardInput(INPUT_ARROW_UP, &arrowUp);
-        assignActionToKeyBoardInput(INPUT_ARROW_RIGHT, &arrowRight);
-        assignActionToKeyBoardInput(INPUT_ARROW_LEFT, &arrowLeft);
-        assignActionToKeyBoardInput(INPUT_ENTER, &enterPressed);
-
         *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight);
+        break;
+    
+    case LOAD_MAZE:
+        // opening save folder
+        DIR * d = NULL;
+        struct dirent *dir;
+                printf("%d\n", loadMazeNumberOfFile);
+        d = opendir("./data/maze");
+
+        if (d) {
+            while ((dir = readdir(d)) != NULL) {
+                if (loadMazeNumberOfFile == 0) {
+                    saveFiles = calloc(1, sizeof(struct dirent));
+                } else {
+                    saveFiles = realloc(saveFiles, sizeof(struct dirent) * (loadMazeNumberOfFile + 1));
+                }
+                if (dir->d_type != DT_REG) {
+                    if (saveFileSkipIndex == NULL) {
+                        saveFileSkipIndex = calloc(1, sizeof(int));
+                    } else {
+                        saveFileSkipIndex = realloc(saveFileSkipIndex, sizeof(int) * (skipIndexSize + 1));
+                    }
+                    saveFileSkipIndex[skipIndexSize] = loadMazeNumberOfFile;
+                    skipIndexSize++;
+                }
+                saveFiles[loadMazeNumberOfFile] = *dir;
+                loadMazeNumberOfFile++;
+            }
+            closedir(d);
+        } // TODO handle error
+
+        while (isInSkipIndex(loadMazeCurrentFocus) && loadMazeCurrentFocus < (loadMazeNumberOfFile + 1))
+        {
+            loadMazeCurrentFocus++;
+        }
+
+        arrowDown.func.void_function = &loadDown;
+        arrowUp.func.void_function = &loadUp;
+        enterPressed.func.void_function = &loadEnter;
         break;
     default: break;
     }
+
+    if (arrowDown.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_ARROW_DOWN, &arrowDown);
+    if (arrowUp.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_ARROW_UP, &arrowUp);
+    if (arrowRight.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_ARROW_RIGHT, &arrowRight);
+    if (arrowLeft.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_ARROW_LEFT, &arrowLeft);
+    if (enterPressed.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_ENTER, &enterPressed);
 }
 
 void display() {
@@ -144,6 +225,7 @@ void display() {
     {
     case SELECTION:
         printfColored(BLACK, WHITE, UNDERLINE, "- SELECTION -\n");
+        if (menuMaze.height != 0 && menuMaze.width != 0) displayMaze(menuMaze);
         if (selectionChoice == CREATE_MAZE) {
             printfColored(BLACK, WHITE, BOLD, "Create maze\n");
         } else printfColored(WHITE, DEFAULT_COLOR, BOLD, "Create maze\n");
@@ -212,6 +294,28 @@ void display() {
         break;
     case LOAD_MAZE:
         printfColored(BLACK, WHITE, UNDERLINE, "- LOAD MAZE -\n");
+        printfColored(YELLOW, DEFAULT_COLOR, BOLD, "%d save files found (%d files in the folder)\n", loadMazeNumberOfFile - skipIndexSize, loadMazeNumberOfFile);
+        if (loadMazeCurrentFocus != loadMazeNumberOfFile) {
+            for (int i = 0; i < loadMazeNumberOfFile; i++)
+            {
+                if (saveFiles[i].d_type == DT_REG) {
+                    if (loadMazeCurrentFocus == i) {
+                        printfColored(WHITE, YELLOW, UNDERLINE, saveFiles[i].d_name);
+                    } else printfColored(YELLOW, DEFAULT_COLOR, UNDERLINE, saveFiles[i].d_name);
+                    printf("\n");
+                }
+            }
+            printfColored(RED, DEFAULT_COLOR, BOLD, "Back to menu\n");
+        } else {
+            for (int i = 0; i < loadMazeNumberOfFile; i++)
+            {
+                if (saveFiles[i].d_type == DT_REG) {
+                    printfColored(YELLOW, DEFAULT_COLOR, UNDERLINE, saveFiles[i].d_name);
+                    printf("\n");
+                }
+            }
+            printfColored(WHITE, RED, BOLD, "Back to menu\n");
+        }
         break;
     case PLAY:
         printfColored(BLACK, WHITE, UNDERLINE, "- PLAY -\n");
