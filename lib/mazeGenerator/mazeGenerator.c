@@ -67,7 +67,8 @@ int compareSidesOfWall(matrix m, wall w) {
     else return -1;
 }
 
-// TODO -> no auto translate to even number
+// TODO -> no auto translate to even 
+// TODO -> use odd number instead of storing wall positions + no positionnal matrix
 maze generateMaze(int width, int height) {
     if (width % 2 == 0) width--;
     if (height % 2 == 0) height--;
