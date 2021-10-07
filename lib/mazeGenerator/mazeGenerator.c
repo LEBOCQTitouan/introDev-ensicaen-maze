@@ -1,5 +1,12 @@
 #include "mazeGenerator.h"
 
+/**
+ * generateMazeMatrixNumbers() will generate the matrix corresponding to the given maze
+ * 
+ * @param maze the maze you want to create the matrix from
+ * 
+ * @return the generated matrix
+*/
 matrix generateMazeMatrixNumbers(maze maze) {
     matrix matrixNumbers = {0};
     matrixNumbers.height = (maze.height - 1) / 2 ;
@@ -23,6 +30,11 @@ matrix generateMazeMatrixNumbers(maze maze) {
     return matrixNumbers;
 }
 
+/**
+ * printMatrix() will display the given matrix in the terminal
+ * 
+ * @param matrix the matrix you want to display
+*/
 void printMatrix(matrix matrix) {
     printf("(%d x %d)\n", matrix.width, matrix.height);
     for (int i = 0; i < matrix.height; i++)
@@ -36,6 +48,13 @@ void printMatrix(matrix matrix) {
     
 }
 
+/**
+ * sumMatrix will return the sum of all the element in the given matrix
+ * 
+ * @param m the matrix you want to sum
+ * 
+ * @return the sum of the given matrix
+*/
 int sumMatrix(matrix m) {
     int sum = 0;
     for (int i = 0; i < m.width; i++)
@@ -48,14 +67,36 @@ int sumMatrix(matrix m) {
     return sum;
 }
 
+/**
+ * getMatrixIndexFromMazeIndex() will translate a matrix index to a maze index
+ * 
+ * @param index the index you want to translate
+ * 
+ * @return the translated value
+*/
 int getMatrixIndexFromMazeIndex(int index) {
     return (index - 1) / 2;
 }
 
+/**
+ * getMazeIndexFromMatrixIndex() will translate a maze index to a matrix index
+ * 
+ * @param index the index you want to translate
+ * 
+ * @return the translated value
+*/
 int getMazeIndexFromMatrixIndex(int index) {
     return (index - 1) * 2;
 }
 
+/**
+ * compareSidesOfWall() will compare the size of two walls given in arg.
+ * 
+ * @param m the matrix used for comparaison of the walls
+ * @param w the wall which you want to compare from
+ * 
+ * @return 0 if both sides are equal, 1 if the first neighbour of the wall is superior and -1 otherwise (the second neighbour is greater)
+*/
 int compareSidesOfWall(matrix m, wall w) {
     int i1 = getMatrixIndexFromMazeIndex(w.ineighbour1),
         j1 = getMatrixIndexFromMazeIndex(w.jneighbour1),
@@ -69,11 +110,16 @@ int compareSidesOfWall(matrix m, wall w) {
 
 // TODO -> no auto translate to even 
 // TODO -> use odd number instead of storing wall positions + no positionnal matrix
-maze generateMaze(int width, int height) {
-    if (width % 2 == 0) width--;
-    if (height % 2 == 0) height--;
-    srand(time(NULL));
-    // allocating space for the new maze
+// TODO -> optimisation propagation
+/**
+ * initMaze() will init a maze of the given size for the random generation algorythm
+ * 
+ * @param width the width of the maze you want to init
+ * @param height the height of the maze you want to init
+ * 
+ * @return the initialized maze
+*/
+maze initMaze(int width, int height) {
     maze newMaze = {0};
     newMaze.width = width;
     newMaze.height = height;
@@ -92,8 +138,6 @@ maze generateMaze(int width, int height) {
     newMaze.elements[1][0] = MAZE_ENTRANCE;
     newMaze.elements[width - 2][height - 1] = MAZE_EXIT;
 
-    // generating maze walls
-    matrix numMatrix = generateMazeMatrixNumbers(newMaze);
     for (int i = 1; i < width; i += 2)
     {
         for (int j = 1; j < height; j += 2)
@@ -101,14 +145,25 @@ maze generateMaze(int width, int height) {
             newMaze.elements[i][j] = MAZE_CORRIDOR;
         }
     }
-    
 
-    int numberOfWalls = 0;
+    return newMaze;
+}
+
+/**
+ * initAllWalls() will fill the array of wall given in the given bound (maze size)
+ * 
+ * @param walls the array which will be filled
+ * @param width the width of the maze
+ * @param height the height of the maze
+ * 
+ * @return the number of walls in the array
+*/
+int initAllWAlls(wall ** walls, int width, int height) {
+    int numberOfWalls = 0; // the total number of walls
     wall * allWalls = NULL;
-    // storing all walls
     for (int j = 1; j < height - 1; j++)
     {
-        int isEven = (j % 2 == 0);
+        bool isEven = (j % 2 == 0); // boolean used to know if the current index is an even index
         for (int i = isEven ? 1 : 2; i < width - 1; i += 2)
         {
             numberOfWalls++;
@@ -130,7 +185,24 @@ maze generateMaze(int width, int height) {
             allWalls[numberOfWalls - 1] = newWall;
         }
     }
+    (*walls) = allWalls;
+    return numberOfWalls;
+}
 
+maze generateMaze(int width, int height) {
+    if (width % 2 == 0) width--;
+    if (height % 2 == 0) height--;
+    srand(time(NULL));
+
+    // allocating space for the new maze
+    maze newMaze = initMaze(width, height);
+
+    // generating maze walls
+    matrix numMatrix = generateMazeMatrixNumbers(newMaze);
+    wall * allWalls = NULL;
+    int numberOfWalls = initAllWAlls(&allWalls, width, height);
+
+    // creating the maze by destructing walls
     int randomWallIndex;
     int compareSidesOfWallValue;
     int numberOfIteration = 0;

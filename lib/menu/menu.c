@@ -1,28 +1,31 @@
 #include "menu.h"
 
-menuType currentMenu = SELECTION;
-char * errorMessage = NULL;
-maze menuMaze = {0};
+menuType currentMenu = SELECTION; // the menu currently in use
+// char * errorMessage = NULL; // TODO
+maze menuMaze = {0}; // the maze in use in the function
 // selection
 menuType selectionChoice = CREATE_MAZE;
 // create maze
-#define MAZE_CREATION_FOCUS_MAX 5
-int mazeCreationWidth = 5;
-int mazeCreationHeight = 5;
-int mazeCreationCurrentFocus = 0;
-maze * newMaze = NULL;
+#define MAZE_CREATION_FOCUS_MAX 5   // the maximal index (menu elements) in the maze creation
+int mazeCreationWidth = 5;          // the width of the maze which will be created
+int mazeCreationHeight = 5;         // the height of the meaz which will be created
+int mazeCreationCurrentFocus = 0;   // the current menu item selected
+maze * newMaze = NULL;              // the maze created in the creation menu
 // load maze
-int loadMazeNumberOfFile = 0;
-struct dirent * saveFiles = NULL;
-int * saveFileSkipIndex = NULL;
-int skipIndexSize = 0;
-int loadMazeCurrentFocus = 0;
+int loadMazeNumberOfFile = 0;       // the number of save file found
+struct dirent * saveFiles = NULL;   // the array of save file loaded
+int * saveFileSkipIndex = NULL;     // the index of the file which does not correspond to a save
+int skipIndexSize = 0;              // the size of the array of file to skip
+int loadMazeCurrentFocus = 0;       // the current menu item selected
 // play
-mazeHandler menuMazeHandler = {0};
+mazeHandler menuMazeHandler = {0};  // the maze handler used to play
 // save maze
-bool wouldSaveMaze = true; // choice
-char * saveName = NULL; // save name
+bool wouldSaveMaze = true;          // bool used to ask if the user want to save the current maze
+char * saveName = NULL;             // the name of the save which will be created
 
+/**
+ * The following funtions are used in the event listener bind to each key (keyboard)
+*/
 /** selection event listenner */
 void selectionDown() {
     selectionChoice++;
@@ -54,8 +57,8 @@ void createLeft() {
     {
     case 0:
         if (mazeCreationWidth < 6) { break; } // TODO error
-        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight);
         mazeCreationWidth-=2;
+        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight);
         break;
     case 1:
         if (mazeCreationHeight < 6) { break; } // TODO error
@@ -98,8 +101,8 @@ void createEnter() {
 }
 
 /** load maze event listenner */
-// filename [suppr] del file
-// dnt print all files but portion with an indicator showing there are more
+// TODO - filename [suppr] del file
+// TODO - dnt print all files but portion with an indicator showing there are more
 int isInSkipIndex(int index) {
     for (int i = 0; i < skipIndexSize; i++)
     {
@@ -145,7 +148,6 @@ void loadEnter() {
 }
 
 /** play event listenner*/
-
 void checkEndGame() {
     if (menuMazeHandler.maze->elements[menuMazeHandler.mazePlayer.position.x][menuMazeHandler.mazePlayer.position.y] == MAZE_EXIT) {
         changeMenu(SELECTION);
@@ -177,7 +179,6 @@ void playEsc() {
 }
 
 /** save event listenner */
-
 void saveChoiceLeft() {
     wouldSaveMaze = !wouldSaveMaze;
 }
@@ -222,10 +223,11 @@ void saveBackspace() {
     }
 }
 
-/** end event listenners */
+/** end event listenners functions */
 
 void changeMenu(menuType newMenu) {
     currentMenu = newMenu;
+    // all the action used in our menu
     rawTerminal_action  arrowDown = {0},
                         arrowUp = {0},
                         arrowLeft = {0},
@@ -234,7 +236,7 @@ void changeMenu(menuType newMenu) {
                         escPressed = {0},
                         letterPressed = {0},
                         backspacePressed = {0};
-
+    // setup for the action (only void functions supported)
     arrowDown.type = VOID_FUNCTION;
     arrowUp.type = VOID_FUNCTION;
     arrowLeft.type = VOID_FUNCTION;
@@ -347,7 +349,7 @@ void changeMenu(menuType newMenu) {
 }
 
 void display() {
-    if (errorMessage != NULL) printfColored(WHITE, RED, BOLD, "/!\\ %s /!\\ \n", errorMessage);
+    // if (errorMessage != NULL) printfColored(WHITE, RED, BOLD, "/!\\ %s /!\\ \n", errorMessage);
     switch (currentMenu)
     {
     case SELECTION:
@@ -508,10 +510,10 @@ void launchMenu() {
         display();
 
         char * input = HandleRawModeKeyboard();
-        if (errorMessage != NULL) {
-            free(errorMessage);
-            errorMessage = NULL;
-        }
+        // if (errorMessage != NULL) {
+        //     free(errorMessage);
+        //     errorMessage = NULL;
+        // }
     }
     makeCursorVisible();
     disableTerminalRawMode();

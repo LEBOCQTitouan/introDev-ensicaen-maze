@@ -15,7 +15,7 @@
 #define MAX_SIZE 1000
 
 void gen_random(char *s, const int len) {
-    static const char alphanum[] =     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    static const char alphanum[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
     for (int i = 0; i < len; ++i) {
         s[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
@@ -34,43 +34,33 @@ void gen_random(char *s, const int len) {
 
 // mu_assert_double_eq(expected, result): it will pass if the two values are almost equal or show their values as the error message. The value of MINUNIT_EPSILON sets the threshold to determine if the values are close enough.
 
-// bool mazeIsSolvable(maze m) {
-//     // TODO
-//     return true;
-// }
+MU_TEST(even_size_check) { // TODO
+    int width = MIN_SIZE + rand() %  MAX_SIZE,
+        height = MIN_SIZE + rand() %  MAX_SIZE;
+    maze testMaze = generateMaze(width, height);
+    mu_check(testMaze.width % 2 == 1 && testMaze.height % 2 == 1);
+}
 
-// MU_TEST(even_size_check) { // TODO
-//     int width = MIN_SIZE + rand() %  MAX_SIZE,
-//         height = MIN_SIZE + rand() %  MAX_SIZE;
-//     maze testMaze = generateMaze(width, height);
+MU_TEST(odd_size_check) { // TODO
+    int width = MIN_SIZE + rand() % MAX_SIZE,
+        height = MIN_SIZE + rand() % MAX_SIZE;
 
-//     printf("%d x %d\n", height, width);
-//     return mazeIsSolvable(testMaze);
-// }
+    if (width % 2 == 0) width++;
+    if (height % 2 == 0) height++;
 
-// MU_TEST(odd_size_check) { // TODO
-//     int width = MIN_SIZE + rand() % MAX_SIZE,
-//         height = MIN_SIZE + rand() % MAX_SIZE;
+    maze testMaze = generateMaze(width, height);
+    mu_check(testMaze.width % 2 == 1 && testMaze.height % 2 == 1);
+}
 
-//     if (width % 2 == 0) width++;
-//     if (height % 2 == 0) height++;
+MU_TEST(solve_maze_check) {
+    // TODO solve maze
+}
 
-
-//     printf("%d x %d\n", height, width);
-//     maze testMaze = generateMaze(width, height);
-//     return mazeIsSolvable(testMaze);
-// }
-
-// MU_TEST_SUITE(maze_generation_suite) {
-//     // for (int i = 0; i < 20; i++)
-//     // {
-//     //     MU_RUN_TEST(even_size_check);
-//     //     MU_RUN_TEST(odd_size_check);
-//     // }
-
-//     MU_RUN_TEST(even_size_check);
-//     MU_RUN_TEST(odd_size_check);
-// }
+MU_TEST_SUITE(maze_generation_suite) {
+    MU_RUN_TEST(even_size_check);
+    MU_RUN_TEST(odd_size_check);
+    MU_RUN_TEST(solve_maze_check);
+}
 
 MU_TEST(save_maze_check) {
     maze checkMaze = generateMaze(rand() % 100 + 5, rand() % 100 + 5);
@@ -82,13 +72,21 @@ MU_TEST(save_maze_check) {
     maze checkMazeLoad = loadMAze(filename);
 
     if (compareMaze(checkMaze, checkMazeLoad) != true) mu_fail("Loaded maze is not equal to starting maze");
+
+    char * pathToFile = NULL;
+    pathToFile = calloc(strlen(filename) + strlen(SAVE_FOLDER) + strlen(MAZE_EXT) + 1, sizeof(char));
+    pathToFile[0] = '\0';
+    strcat(pathToFile, SAVE_FOLDER);
+    strcat(pathToFile, filename);
+    strcat(pathToFile, MAZE_EXT);
+
+    remove(pathToFile);
 }
 
+// TODO check if move out of the maze is possible
+// TODO check move
 MU_TEST_SUITE(maze_handler_suite) {
-    for (int i = 0; i < 10; i++)
-    {
-        MU_RUN_TEST(save_maze_check);
-    }
+    MU_RUN_TEST(save_maze_check);
 }
 
 
@@ -98,21 +96,7 @@ int main(int argc, char const *argv[]){
     // MU_RUN_SUITE(maze_generation_suite);
     // MU_RUN_SUITE(maze_handler_suite);
 
-    /**
-     * dev
-    */
-    
-    // maze checkMaze = generateMaze(rand() % 100 + 5, rand() % 100 + 5);
-
-    // char filename[20] = {0};
-    // gen_random(filename, 20);
-    // int saveStatus = saveMaze(filename, checkMaze);
-
     launchMenu();
-
-    /**
-        * end dev
-    */
 
     MU_REPORT();
     return MU_EXIT_CODE;

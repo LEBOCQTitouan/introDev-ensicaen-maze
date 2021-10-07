@@ -33,6 +33,15 @@ typedef enum {
     RIGHT
 } directionPlayer;
 
+typedef enum {
+    DEFAULT,
+    HARDCORE
+} difficulty;
+
+typedef struct {
+    coord * path;
+    int size;
+} path;
 
 maze loadMAze(char * name);
 

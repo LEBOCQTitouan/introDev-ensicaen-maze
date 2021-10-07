@@ -1,5 +1,8 @@
 #include "mazeDisplay.h"
 
+/**
+ * displayMazeInfos() display the dim of the maze
+*/
 void displayMazeInfos(maze m) {
     printfColored(YELLOW, DEFAULT_COLOR, BOLD, "(%d x %d)\n", m.height, m.width);
 }
@@ -9,6 +12,7 @@ void displayMaze(maze m) {
     {
         for (int i = 0; i < m.width; i++)
         {
+            
             if (m.elements[i][j] == MAZE_ENTRANCE) printfColored(WHITE, GREEN, BOLD, "%c%c", MAZE_ENTRANCE, MAZE_ENTRANCE);
             else if (m.elements[i][j] == MAZE_EXIT) printfColored(WHITE, RED, BOLD, "%c%c", MAZE_EXIT, MAZE_EXIT);
             else if (m.elements[i][j] == MAZE_CORRIDOR) printfColored(BLACK, BLACK, BOLD, "%c%c", MAZE_CORRIDOR, MAZE_CORRIDOR);
@@ -18,7 +22,6 @@ void displayMaze(maze m) {
     }
     displayMazeInfos(m);
 }
-
 
 void displayMazeWithPlayer(mazeHandler handler) {
     maze m = (*handler.maze);
