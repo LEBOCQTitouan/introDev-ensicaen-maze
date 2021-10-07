@@ -19,6 +19,9 @@ int skipIndexSize = 0;
 int loadMazeCurrentFocus = 0;
 // play
 mazeHandler menuMazeHandler = {0};
+// save maze
+bool wouldSaveMaze = true; // choice
+char * saveName = NULL; // save name
 
 /** selection event listenner */
 void selectionDown() {
@@ -169,6 +172,56 @@ void playRight() {
     checkEndGame();
 }
 
+void playEsc() {
+    changeMenu(SAVE_MAZE_CHOICE);
+}
+
+/** save event listenner */
+
+void saveChoiceLeft() {
+    wouldSaveMaze = !wouldSaveMaze;
+}
+
+void saveChoiceRight() {
+    wouldSaveMaze = !wouldSaveMaze;
+}
+
+void saveChoiceEnter() {
+    if (wouldSaveMaze) changeMenu(SAVE_MAZE);
+    else changeMenu(SELECTION);
+}
+
+void appendTostring(char * s1, char * s2) {
+
+}
+
+void saveEnter() {
+    saveMaze(saveName, menuMaze);
+    changeMenu(SELECTION);
+}
+
+void saveLetter() {
+    char * input = getBufferValue();
+
+    char * newSaveName = NULL;
+    newSaveName = calloc(strlen(saveName) + strlen(input) + 1, sizeof(char));
+    newSaveName[0] = '\0';
+    strcat(newSaveName, saveName);
+    strcat(newSaveName, input);
+
+    saveName = newSaveName;
+}
+
+void saveBackspace() {
+    if (strlen(saveName) > 0) {
+        char * newSaveName = NULL;
+        newSaveName = calloc(strlen(saveName) - 2, sizeof(char));
+        memccpy(newSaveName, saveName, strlen(saveName) - 2, sizeof(char));
+
+        saveName = newSaveName;
+    }
+}
+
 /** end event listenners */
 
 void changeMenu(menuType newMenu) {
@@ -177,13 +230,19 @@ void changeMenu(menuType newMenu) {
                         arrowUp = {0},
                         arrowLeft = {0},
                         arrowRight = {0},
-                        enterPressed = {0};
+                        enterPressed = {0},
+                        escPressed = {0},
+                        letterPressed = {0},
+                        backspacePressed = {0};
 
     arrowDown.type = VOID_FUNCTION;
     arrowUp.type = VOID_FUNCTION;
     arrowLeft.type = VOID_FUNCTION;
     arrowRight.type = VOID_FUNCTION;
     enterPressed.type = VOID_FUNCTION;
+    escPressed.type = VOID_FUNCTION;
+    letterPressed.type = VOID_FUNCTION;
+    backspacePressed.type = VOID_FUNCTION;
 
     switch (newMenu)
     {
@@ -258,6 +317,21 @@ void changeMenu(menuType newMenu) {
         arrowUp.func.void_function = &playUp;
         arrowLeft.func.void_function = &playLeft;
         arrowRight.func.void_function = &playRight;
+        escPressed.func.void_function = &playEsc;
+        break;
+    case SAVE_MAZE_CHOICE:
+        wouldSaveMaze = true;
+        arrowLeft.func.void_function = &saveChoiceLeft;
+        arrowRight.func.void_function = &saveChoiceRight;
+        enterPressed.func.void_function = &saveChoiceEnter;
+        break;
+    case SAVE_MAZE_LOADING:
+        break;
+    case SAVE_MAZE:
+        saveName = "";
+        letterPressed.func.void_function = &saveLetter;
+        backspacePressed.func.void_function = &saveBackspace;
+        enterPressed.func.void_function = &saveEnter;
         break;
     default: break;
     }
@@ -267,6 +341,9 @@ void changeMenu(menuType newMenu) {
     if (arrowRight.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_ARROW_RIGHT, &arrowRight);
     if (arrowLeft.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_ARROW_LEFT, &arrowLeft);
     if (enterPressed.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_ENTER, &enterPressed);
+    if (escPressed.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_ESCAPE_CHAR, &escPressed);
+    if (letterPressed.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_LETTER, &letterPressed);
+    if (backspacePressed.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_BACKSPACE, &backspacePressed);
 }
 
 void display() {
@@ -385,6 +462,29 @@ void display() {
     case PLAY:
         printfColored(BLACK, WHITE, UNDERLINE, "- PLAY -\n");
         displayMazeWithPlayer(menuMazeHandler);
+        printfColored(RED, DEFAULT_COLOR, ITALIC, "press [esc] to return to selection menu");
+        printf("");
+        break;
+    case SAVE_MAZE_CHOICE:
+        printfColored(BLACK, WHITE, UNDERLINE, "- SAVE MAZE -\n");
+        displayMaze(menuMaze);
+        printfColored(WHITE, DEFAULT_COLOR, BOLD, "Would you like to save this maze ?");
+        printf("\n");
+        printfColored(!wouldSaveMaze ? WHITE : BLACK, !wouldSaveMaze ? DEFAULT_COLOR : WHITE, BOLD, "y"); // TODO change terner
+        printf(" - ");
+        printfColored(wouldSaveMaze ? WHITE : BLACK, wouldSaveMaze ? DEFAULT_COLOR : WHITE, BOLD, "n"); // TODO change terner
+        printf("\n");
+        break;
+    case SAVE_MAZE_LOADING:
+        printfColored(BLACK, WHITE, UNDERLINE, "- SAVE MAZE -\n");
+        printfColored(YELLOW, DEFAULT_COLOR, BOLD, "Saving the maze ...");
+        printf("\n");
+        break;
+    case SAVE_MAZE:
+        printfColored(BLACK, WHITE, UNDERLINE, "- SAVE MAZE -\n");
+        printfColored(WHITE, DEFAULT_COLOR, BOLD, "Your file name : ");
+        printfColored(YELLOW, DEFAULT_COLOR, UNDERLINE, "%s", saveName);
+        printf("\n");
         break;
     default: break;
     }

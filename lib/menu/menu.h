@@ -18,7 +18,10 @@ typedef enum {
     CREATE_MAZE,
     LOAD_MAZE,
     PLAY,
-    EXIT
+    EXIT,
+    SAVE_MAZE_CHOICE,
+    SAVE_MAZE_LOADING,
+    SAVE_MAZE
 } menuType;
 
 void launchMenu();
