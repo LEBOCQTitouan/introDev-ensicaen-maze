@@ -121,6 +121,7 @@ int compareSidesOfWall(matrix m, wall w) {
 */
 maze initMaze(int width, int height) {
     maze newMaze = {0};
+    newMaze.name = "";
     newMaze.width = width;
     newMaze.height = height;
     newMaze.elements = calloc(width, sizeof(int *));
@@ -189,13 +190,16 @@ int initAllWAlls(wall ** walls, int width, int height) {
     return numberOfWalls;
 }
 
-maze generateMaze(int width, int height) {
+maze generateMaze(int width, int height, char * name) {
     if (width % 2 == 0) width--;
     if (height % 2 == 0) height--;
     srand(time(NULL));
 
     // allocating space for the new maze
     maze newMaze = initMaze(width, height);
+
+    // adding name
+    newMaze.name = name;
 
     // generating maze walls
     matrix numMatrix = generateMazeMatrixNumbers(newMaze);

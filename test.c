@@ -12,7 +12,7 @@
 #include "lib/menu/menu.h"
 
 #define MIN_SIZE 5
-#define MAX_SIZE 1000
+#define MAX_SIZE 200
 
 void gen_random(char *s, const int len) {
     static const char alphanum[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -37,7 +37,7 @@ void gen_random(char *s, const int len) {
 MU_TEST(even_size_check) { // TODO
     int width = MIN_SIZE + rand() %  MAX_SIZE,
         height = MIN_SIZE + rand() %  MAX_SIZE;
-    maze testMaze = generateMaze(width, height);
+    maze testMaze = generateMaze(width, height, "test");
     mu_check(testMaze.width % 2 == 1 && testMaze.height % 2 == 1);
 }
 
@@ -48,7 +48,7 @@ MU_TEST(odd_size_check) { // TODO
     if (width % 2 == 0) width++;
     if (height % 2 == 0) height++;
 
-    maze testMaze = generateMaze(width, height);
+    maze testMaze = generateMaze(width, height, "test");
     mu_check(testMaze.width % 2 == 1 && testMaze.height % 2 == 1);
 }
 
@@ -63,15 +63,22 @@ MU_TEST_SUITE(maze_generation_suite) {
 }
 
 MU_TEST(save_maze_check) {
-    maze checkMaze = generateMaze(rand() % 100 + 5, rand() % 100 + 5);
-
     char filename[20] = {0};
     gen_random(filename, 20);
-    int saveStatus = saveMaze(filename, checkMaze);
+    
+    maze checkMaze = generateMaze(rand() % 100 + 5, rand() % 100 + 5, filename);
+
+    // int saveStatus = saveMaze(checkMaze);
+    saveMaze(checkMaze);
 
     maze checkMazeLoad = loadMAze(filename);
 
-    if (compareMaze(checkMaze, checkMazeLoad) != true) mu_fail("Loaded maze is not equal to starting maze");
+    if (
+        compareMaze(checkMaze, checkMazeLoad) != true
+        || strcmp(checkMaze.name, checkMazeLoad.name) != 0
+    ) {
+        mu_fail("Loaded maze is not equal to starting maze");
+    }
 
     char * pathToFile = NULL;
     pathToFile = calloc(strlen(filename) + strlen(SAVE_FOLDER) + strlen(MAZE_EXT) + 1, sizeof(char));

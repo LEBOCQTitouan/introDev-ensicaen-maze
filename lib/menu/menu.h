@@ -22,9 +22,7 @@ typedef enum {
     LOAD_MAZE,
     PLAY,
     EXIT,
-    SAVE_MAZE_CHOICE,
-    SAVE_MAZE_LOADING,
-    SAVE_MAZE
+    SAVE_MAZE_CHOICE
 } menuType;
 
 /**

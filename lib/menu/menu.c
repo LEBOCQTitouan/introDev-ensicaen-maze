@@ -1,6 +1,7 @@
 #include "menu.h"
 
 // TODO => error in save (while saving)
+// TODO => notification in app (error or infos)
 
 menuType currentMenu = SELECTION; // the menu currently in use
 // char * errorMessage = NULL; // TODO
@@ -13,6 +14,7 @@ int mazeCreationWidth = 5;          // the width of the maze which will be creat
 int mazeCreationHeight = 5;         // the height of the meaz which will be created
 int mazeCreationCurrentFocus = 0;   // the current menu item selected
 maze * newMaze = NULL;              // the maze created in the creation menu
+char * nameGenerated = NULL;        // the name of the maze created
 // load maze
 int loadMazeNumberOfFile = 0;       // the number of save file found
 struct dirent * saveFiles = NULL;   // the array of save file loaded
@@ -23,7 +25,6 @@ int loadMazeCurrentFocus = 0;       // the current menu item selected
 mazeHandler menuMazeHandler = {0};  // the maze handler used to play
 // save maze
 bool wouldSaveMaze = true;          // bool used to ask if the user want to save the current maze
-char * saveName = NULL;             // the name of the save which will be created
 
 /**
  * The following funtions are used in the event listener bind to each key (keyboard)
@@ -60,12 +61,12 @@ void createLeft() {
     case 0:
         if (mazeCreationWidth < 6) { break; } // TODO error
         mazeCreationWidth-=2;
-        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight);
+        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated);
         break;
     case 1:
         if (mazeCreationHeight < 6) { break; } // TODO error
         mazeCreationHeight-=2;
-        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight);
+        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated);
         break;
     default: break;
     }
@@ -76,11 +77,11 @@ void createRight() {
     {
     case 0:
         mazeCreationWidth+=2;
-        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight);
+        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated);
         break;
     case 1:
         mazeCreationHeight+=2;
-        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight);
+        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated);
         break;
     default: break;
     }}
@@ -89,7 +90,7 @@ void createEnter() {
     switch (mazeCreationCurrentFocus)
     {
     case 2:
-        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight);
+        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated);
         break;
     case 3:
         changeMenu(SELECTION);
@@ -99,6 +100,32 @@ void createEnter() {
         changeMenu(SELECTION);
         break;
     default: break;
+    }
+}
+
+void createLetter() {
+    char * input = getBufferValue();
+
+    char * newCreateName = NULL;
+    newCreateName = calloc(strlen(nameGenerated) + strlen(input) + 1, sizeof(char));
+    newCreateName[0] = '\0';
+    strcat(newCreateName, nameGenerated);
+    strcat(newCreateName, input);
+
+    nameGenerated = newCreateName;
+
+    newMaze->name = nameGenerated;
+}
+
+void createBackspace() {
+    if (strlen(nameGenerated) > 0) {
+        char * newCreateName = NULL;
+        newCreateName = calloc(strlen(nameGenerated), sizeof(char));
+        strncpy(newCreateName, nameGenerated, strlen(nameGenerated) - 1);
+
+        nameGenerated = newCreateName;
+
+        newMaze->name = nameGenerated;
     }
 }
 
@@ -190,39 +217,10 @@ void saveChoiceRight() {
 }
 
 void saveChoiceEnter() {
-    if (wouldSaveMaze) changeMenu(SAVE_MAZE);
-    else changeMenu(SELECTION);
-}
-
-void appendTostring(char * s1, char * s2) {
-
-}
-
-void saveEnter() {
-    saveMaze(saveName, menuMaze);
-    changeMenu(SELECTION);
-}
-
-void saveLetter() {
-    char * input = getBufferValue();
-
-    char * newSaveName = NULL;
-    newSaveName = calloc(strlen(saveName) + strlen(input) + 1, sizeof(char));
-    newSaveName[0] = '\0';
-    strcat(newSaveName, saveName);
-    strcat(newSaveName, input);
-
-    saveName = newSaveName;
-}
-
-void saveBackspace() {
-    if (strlen(saveName) > 0) {
-        char * newSaveName = NULL;
-        newSaveName = calloc(strlen(saveName) - 2, sizeof(char));
-        memccpy(newSaveName, saveName, strlen(saveName) - 2, sizeof(char));
-
-        saveName = newSaveName;
+    if (wouldSaveMaze) {
+        saveMaze(menuMaze);
     }
+    changeMenu(SELECTION);
 }
 
 /** end event listenners functions */
@@ -248,6 +246,16 @@ void changeMenu(menuType newMenu) {
     letterPressed.type = VOID_FUNCTION;
     backspacePressed.type = VOID_FUNCTION;
 
+    arrowDown.func.void_function = DUMMY_FUNCTION;
+    arrowUp.func.void_function = DUMMY_FUNCTION;
+    arrowLeft.func.void_function = DUMMY_FUNCTION;
+    arrowRight.func.void_function = DUMMY_FUNCTION;
+    enterPressed.func.void_function = DUMMY_FUNCTION;
+    escPressed.func.void_function = DUMMY_FUNCTION;
+    letterPressed.func.void_function = DUMMY_FUNCTION;
+    backspacePressed.func.void_function = DUMMY_FUNCTION;
+    // end setup
+
     switch (newMenu)
     {
     case SELECTION:
@@ -261,14 +269,17 @@ void changeMenu(menuType newMenu) {
     case CREATE_MAZE:
         newMaze = calloc(1, sizeof(maze));
         mazeCreationCurrentFocus = 0;
+        nameGenerated = "newMaze";
 
         arrowDown.func.void_function = &createDown;
         arrowUp.func.void_function = &createUp;
         arrowLeft.func.void_function = &createLeft;
         arrowRight.func.void_function = &createRight;
         enterPressed.func.void_function = &createEnter;
+        letterPressed.func.void_function = &createLetter;
+        backspacePressed.func.void_function = &createBackspace;
 
-        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight);
+        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated);
         break;
     
     case LOAD_MAZE:
@@ -329,25 +340,17 @@ void changeMenu(menuType newMenu) {
         arrowRight.func.void_function = &saveChoiceRight;
         enterPressed.func.void_function = &saveChoiceEnter;
         break;
-    case SAVE_MAZE_LOADING:
-        break;
-    case SAVE_MAZE:
-        saveName = "";
-        letterPressed.func.void_function = &saveLetter;
-        backspacePressed.func.void_function = &saveBackspace;
-        enterPressed.func.void_function = &saveEnter;
-        break;
     default: break;
     }
 
-    if (arrowDown.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_ARROW_DOWN, &arrowDown);
-    if (arrowUp.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_ARROW_UP, &arrowUp);
-    if (arrowRight.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_ARROW_RIGHT, &arrowRight);
-    if (arrowLeft.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_ARROW_LEFT, &arrowLeft);
-    if (enterPressed.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_ENTER, &enterPressed);
-    if (escPressed.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_ESCAPE_CHAR, &escPressed);
-    if (letterPressed.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_LETTER, &letterPressed);
-    if (backspacePressed.func.void_function != NULL) assignActionToKeyBoardInput(INPUT_BACKSPACE, &backspacePressed);
+    assignActionToKeyBoardInput(INPUT_ARROW_DOWN, &arrowDown);
+    assignActionToKeyBoardInput(INPUT_ARROW_UP, &arrowUp);
+    assignActionToKeyBoardInput(INPUT_ARROW_RIGHT, &arrowRight);
+    assignActionToKeyBoardInput(INPUT_ARROW_LEFT, &arrowLeft);
+    assignActionToKeyBoardInput(INPUT_ENTER, &enterPressed);
+    assignActionToKeyBoardInput(INPUT_ESCAPE_CHAR, &escPressed);
+    assignActionToKeyBoardInput(INPUT_LETTER, &letterPressed);
+    assignActionToKeyBoardInput(INPUT_BACKSPACE, &backspacePressed);
 }
 
 void display() {
@@ -386,6 +389,8 @@ void display() {
         break;
     case CREATE_MAZE:
         printfColored(BLACK, WHITE, UNDERLINE, "- CREATE MAZE -\n");
+        printfColored(YELLOW, DEFAULT, UNDERLINE, "[INFO] type any char to change the name (you can erase with backspace)");
+        printf("\n\n");
         if (newMaze != NULL) displayMaze(*newMaze);
         switch (mazeCreationCurrentFocus)
         {
@@ -477,17 +482,6 @@ void display() {
         printfColored(!wouldSaveMaze ? WHITE : BLACK, !wouldSaveMaze ? DEFAULT_COLOR : WHITE, BOLD, "y"); // TODO change terner
         printf(" - ");
         printfColored(wouldSaveMaze ? WHITE : BLACK, wouldSaveMaze ? DEFAULT_COLOR : WHITE, BOLD, "n"); // TODO change terner
-        printf("\n");
-        break;
-    case SAVE_MAZE_LOADING:
-        printfColored(BLACK, WHITE, UNDERLINE, "- SAVE MAZE -\n");
-        printfColored(YELLOW, DEFAULT_COLOR, BOLD, "Saving the maze ...");
-        printf("\n");
-        break;
-    case SAVE_MAZE:
-        printfColored(BLACK, WHITE, UNDERLINE, "- SAVE MAZE -\n");
-        printfColored(WHITE, DEFAULT_COLOR, BOLD, "Your file name : ");
-        printfColored(YELLOW, DEFAULT_COLOR, UNDERLINE, "%s", saveName);
         printf("\n");
         break;
     default: break;

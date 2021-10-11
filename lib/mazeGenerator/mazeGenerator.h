@@ -25,6 +25,6 @@ typedef struct {
     int jneighbour2;
 } wall;
 
-maze generateMaze(int width, int height);
+maze generateMaze(int width, int height, char * name);
 
 #endif //MAZE_GENERATOR_H

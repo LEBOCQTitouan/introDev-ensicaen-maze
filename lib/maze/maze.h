@@ -38,6 +38,8 @@ typedef struct mazes
     int width;
     int height;
 
+    char * name;
+
     entity * entities;
     int numberOfEntity;
 } maze;

@@ -45,7 +45,7 @@ typedef struct {
 
 maze loadMAze(char * name);
 
-int saveMaze(char * name, maze m);
+int saveMaze(maze m);
 
 bool compareMaze(maze m1, maze m2);
 

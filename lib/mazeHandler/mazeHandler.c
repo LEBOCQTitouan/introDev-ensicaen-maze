@@ -1,5 +1,24 @@
 #include "mazeHandler.h"
 
+void readWidth(maze * m, FILE * filePtr) {
+    fread(&(m->width), sizeof(int), 1, filePtr);
+}
+
+void readHeight(maze * m, FILE * filePtr) {
+    fread(&(m->height), sizeof(int), 1, filePtr);
+}
+
+void readElements(maze * m, FILE * filePtr) {
+    m->elements = calloc(m->width, sizeof(int *));
+    for (int i = 0; i < m->width; i++)
+    {
+        m->elements[i] = calloc(m->height, sizeof(int));
+        for (int j = 0; j < m->height; j++) {
+            fread(&(m->elements[i][j]), sizeof(int), 1, filePtr);
+        }
+    }
+}
+
 maze loadMAze(char * name) {
     maze loadedMaze = {0};
     FILE * mazeFilePtr = NULL;
@@ -11,32 +30,22 @@ maze loadMAze(char * name) {
     
     mazeFilePtr = fopen(fileName, "r");
 
-    int readingState = 0;
-    readingState = fread(&(loadedMaze.width), sizeof(int), 1, mazeFilePtr);
-    readingState = fread(&(loadedMaze.height), sizeof(int), 1, mazeFilePtr);
-
-    loadedMaze.elements = calloc(loadedMaze.width, sizeof(int *));
-    for (int i = 0; i < loadedMaze.width; i++)
-    {
-        loadedMaze.elements[i] = calloc(loadedMaze.height, sizeof(int));
-        for (int j = 0; j < loadedMaze.height; j++)
-        {
-            readingState = fread(&(loadedMaze.elements[i][j]), sizeof(int), 1, mazeFilePtr);
-        }
-    }
+    readWidth(&loadedMaze, mazeFilePtr);
+    readHeight(&loadedMaze, mazeFilePtr);
+    readElements(&loadedMaze, mazeFilePtr);
+    loadedMaze.name = name;
 
     free(fileName);
     fclose(mazeFilePtr);
     return loadedMaze;
 }
 
-// TODO => error
-int saveMaze(char * name, maze m) {
+int saveMaze(maze m) {
     FILE * mazeFilePtr = NULL;
-    char * fileName = calloc(strlen(name) + strlen(MAZE_EXT) + strlen(SAVE_FOLDER), sizeof(char));
+    char * fileName = calloc(strlen(m.name) + strlen(MAZE_EXT) + strlen(SAVE_FOLDER), sizeof(char));
 
     fileName = strcpy(fileName, SAVE_FOLDER);
-    fileName = strcat(fileName, name);
+    fileName = strcat(fileName, m.name);
     fileName = strcat(fileName, MAZE_EXT);
 
     mazeFilePtr = fopen(fileName, "w");
@@ -52,6 +61,12 @@ int saveMaze(char * name, maze m) {
             writingState = fwrite(&(m.elements[i][j]), sizeof(int), 1, mazeFilePtr);
         }
     }
+
+    int size = strlen(m.name);
+    size++;
+    writingState = fwrite(&size, sizeof(int), 1, mazeFilePtr);
+    writingState = fwrite(m.name, sizeof(char), strlen(m.name), mazeFilePtr);
+    writingState = fwrite("\0", sizeof(char), 1, mazeFilePtr);
 
     free(fileName);
     fclose(mazeFilePtr);
