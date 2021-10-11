@@ -1,5 +1,7 @@
 #include "menu.h"
 
+// TODO => error in save (while saving)
+
 menuType currentMenu = SELECTION; // the menu currently in use
 // char * errorMessage = NULL; // TODO
 maze menuMaze = {0}; // the maze in use in the function
