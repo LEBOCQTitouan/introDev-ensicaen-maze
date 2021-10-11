@@ -146,3 +146,11 @@ bool compareMaze(maze m1, maze m2) {
     }
     return true;
 }
+
+int isEntityCoord(maze * m, int x, int y) {
+    for (int i = 0; i < (*m).numberOfEntity; i++)
+    {
+        if (m->entities[i].x == x && m->entities[i].y == y) return i;
+    }
+    return -1;
+}

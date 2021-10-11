@@ -5,6 +5,19 @@
 */
 void displayMazeInfos(maze m) {
     printfColored(YELLOW, DEFAULT_COLOR, BOLD, "%s (%d x %d)\n", m.name, m.height, m.width);
+    printfColored(PURPLE, DEFAULT_COLOR, UNDERLINE, "number of entities : %d\n", m.numberOfEntity);
+    printf("\n");
+
+    printfColored(YELLOW, DEFAULT_COLOR, BOLD, "K-");
+    printf(" : ");
+    printfColored(DEFAULT_COLOR, DEFAULT_COLOR, UNDERLINE, "Key\n");
+    printfColored(DEFAULT_COLOR, YELLOW, BOLD, "Tr");
+    printf(" : ");
+    printfColored(DEFAULT_COLOR, DEFAULT_COLOR, UNDERLINE, "Treasure\n");
+    printfColored(DEFAULT_COLOR, RED, BOLD, "Tr");
+    printf(" : ");
+    printfColored(DEFAULT_COLOR, DEFAULT_COLOR, UNDERLINE, "Trap\n");
+
     printf("\n");
 }
 
@@ -29,31 +42,6 @@ void displayMazeElement(mazeElement element) {
     }
 }
 
-/**
- * the isEntityCoord() function will return the index of the entity at x y or -1 if no entity
-*/
-int isEntityCoord(maze * m, int x, int y) {
-    for (int i = 0; i < m->numberOfEntity; i++)
-    {
-        if (m->entities[i].x == x && m->entities[y].y == y) return i;
-    }
-}
-
-void displayMaze(maze m) {
-    for (int j = 0; j < m.height; j++)
-    {
-        for (int i = 0; i < m.width; i++) displayMazeElement(m.elements[i][j]);
-        printf("\n");
-    }
-    displayMazeInfos(m);
-}
-
-void displayMazeWithPlayerInfos() {
-    printfColored(DEFAULT_COLOR, CYAN, BOLD, "P");
-    printfColored(DEFAULT_COLOR, DEFAULT_COLOR, BOLD, " : Player\n");
-    printf("\n");
-}
-
 void displayMazeEntity(entityType entity) {
     switch (entity)
     {
@@ -66,8 +54,40 @@ void displayMazeEntity(entityType entity) {
     case TRAP:
         printfColored(DEFAULT_COLOR, RED, BOLD, "Tr");
         break;
-    default: break;
+    default:
+        printfColored(RED, DEFAULT, BOLD, "EE");
+        break;
     }
+}
+
+void displayMaze(maze m) {
+    for (int j = 0; j < m.height; j++)
+    {
+        for (int i = 0; i < m.width; i++) {
+            int entityCoord = isEntityCoord(&m, i, j);
+            if (entityCoord != -1) {
+                displayMazeEntity(m.entities[entityCoord].type);
+            } else displayMazeElement(m.elements[i][j]);
+        }
+        printf("\n");
+    }
+    displayMazeInfos(m);
+    printfColored(YELLOW, DEFAULT_COLOR, UNDERLINE, "entities :\n");
+    for (int i = 0; i < m.numberOfEntity && i < 6; i++)
+    {
+        displayMazeEntity(m.entities[i].type);
+        printf(" [%d,%d]\n", m.entities[i].x, m.entities[i].y);
+    }
+    if (m.numberOfEntity > 6) printfColored(PURPLE, DEFAULT_COLOR, BOLD, "and more ...");
+    printf("\n");
+}
+
+void displayMazeWithPlayerInfos() {
+    printfColored(DEFAULT_COLOR, CYAN, BOLD, "P ");
+    printf(" : ");
+    printfColored(DEFAULT_COLOR, DEFAULT_COLOR, UNDERLINE, "Player\n");
+    
+    printf("\n");
 }
 
 void displayMazeWithPlayer(mazeHandler handler) {
@@ -76,11 +96,14 @@ void displayMazeWithPlayer(mazeHandler handler) {
     {
         for (int i = 0; i < m.width; i++)
         {
-            int  entityCoord = -1;
             if (i == handler.mazePlayer.position.x && j == handler.mazePlayer.position.y) printfColored(DEFAULT_COLOR, CYAN, BOLD, "Pl");
-            else if ((entityCoord = isEntityCoord(handler.maze, i, j)) != -1) {
-                displayMazeEntity(handler.maze->entities[entityCoord].type);
-            } else displayMazeElement(m.elements[i][j]);
+            else {
+                int entityCoord = isEntityCoord(&m, i, j);
+                if (entityCoord != -1) {
+                    displayMazeEntity(handler.maze->entities[entityCoord].type);
+                }
+                else displayMazeElement(m.elements[i][j]);
+            }
         }
         printf("\n");
     }

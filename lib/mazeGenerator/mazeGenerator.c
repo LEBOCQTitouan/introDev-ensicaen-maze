@@ -133,8 +133,7 @@ maze initMaze(int width, int height) {
         for (int j = 0; j < height; j++)
         {
             newMaze.elements[i][j] = MAZE_WALL;
-        }
-        
+        } 
     }
     newMaze.elements[1][0] = MAZE_ENTRANCE;
     newMaze.elements[width - 2][height - 1] = MAZE_EXIT;
@@ -148,6 +147,20 @@ maze initMaze(int width, int height) {
     }
 
     return newMaze;
+}
+
+// TODO => opti
+int generateOddNumberBetween(int min, int max) {
+    int oddNumber;
+    oddNumber = rand() % max;
+    oddNumber += min;
+    do
+    {
+        oddNumber++;
+        if (oddNumber >= max) oddNumber = 1;
+    } while (oddNumber % 2 != 1);
+    
+    return oddNumber;
 }
 
 /**
@@ -253,6 +266,33 @@ maze generateMaze(int width, int height, char * name) {
             numberOfIteration++;
        }
     } while (numberOfIteration < ((newMaze.height/2) * (newMaze.width/2)) - 1);
+
+    /** adding entities */
+    newMaze.entities = calloc(1, sizeof(entity));
+
+    newMaze.entities[0].type = KEY;
+    newMaze.entities[0].x = generateOddNumberBetween(1, width - 1);
+    newMaze.entities[0].y = generateOddNumberBetween(1, height - 1);
+
+    newMaze.numberOfEntity++;
+    int numberOfEntity = (rand() % (width * height)) / 8;
+    for (int i = 0; i < numberOfEntity; i++) // change number of entity
+    {
+        newMaze.entities = realloc(newMaze.entities, ((newMaze.numberOfEntity + 1) * sizeof(entity)));
+        entity * element = &(newMaze.entities[newMaze.numberOfEntity]);
+
+        newMaze.entities[newMaze.numberOfEntity].type = rand() % 2 == 0 ? TRAP : TREASURE;
+        int x, y;
+        do
+        {
+            x = generateOddNumberBetween(1, width - 1);
+            y = generateOddNumberBetween(1, height - 1);
+        } while (isEntityCoord(&newMaze, x, y) != -1);
+
+        newMaze.entities[newMaze.numberOfEntity].x = x;
+        newMaze.entities[newMaze.numberOfEntity].y = y;
+        newMaze.numberOfEntity++;
+    }
 
     return newMaze;
 }
