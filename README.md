@@ -1,12 +1,14 @@
-# mazeGenerator
+# mazeGenerator #
 
-## Introduction
+## Introduction ##
 
-A simple app used to create maze.  
+A simple app where you have to solve a maze (with traps, monsters, ...). You can also generate mazes, save them and load them.
 
-## Project
+## Project ##
 
-### PRESENTATION DU PROJET
+In this part you will have the description of the project as given in the project subject (french).
+
+### PRESENTATION DU PROJET ###
 
 Le but du projet est la réalisation d’un générateur de labyrinthe, et de son utilisation dans un
 jeu. Ce projet est à réaliser en monôme.
@@ -33,7 +35,7 @@ Il n’est pas attendu que les tests unitaires couvrent l’intégralité du cod
 essentiels tels que les entrées/sorties (vérification des saisies utilisateurs, gestion des fichiers,
 etc.).
 
-#### Livrables
+#### Livrables ####
 
 Le rendu du projet sera une archive contenant :
 
@@ -49,9 +51,9 @@ Le rendu du projet sera une archive contenant :
     * Le fonctionnement des points clés de votre projet, du point de vue du programmeur ;
     * Les limitations et/ou bugs connus.
 
-### TRAVAIL A REALISER
+### TRAVAIL A REALISER ###
 
-#### Etape 1 (4 points)
+#### Etape 1 (4 points) ####
 
 Le but est de réaliser un générateur de labyrinthe parfait de taille fixe 11*25. L’algorithme de
 génération vous est fourni en annexe. L’affichage sera fait en mode console, tel que présenté
@@ -61,7 +63,7 @@ sortie est représentée par le symbole –.
 
 ![Figure 1 Rendu d'un labyrinthe de taille 11*25 en mode console](.README/exampleDisplay.png)
 
-#### Etape 2 (6 points)
+#### Etape 2 (6 points) ####
 
 Au démarrage du programme, un menu permet à l’utilisateur de :
 
@@ -70,26 +72,26 @@ Au démarrage du programme, un menu permet à l’utilisateur de :
 * Jouer
 * Quitter
 
-##### 2.1. Créer un labyrinthe
+##### 2.1. Créer un labyrinthe #####
 
 Lors de la création du labyrinthe, l’utilisateur pourra choisir la taille du labyrinthe (hauteur et
 largeur impaire) ainsi que son nom. Chaque labyrinthe généré est enregistré dans un fichier au
 format .cfg et est automatiquement chargé. L’utilisateur est alors renvoyé au menu.
 
-##### 2.2. Charger un labyrinthe
+##### 2.2. Charger un labyrinthe #####
 
 Lors du chargement, l’utilisateur indique le nom du labyrinthe auquel il souhaite jouer (une
 liste des labyrinthes existants pourra lui être proposée). Le programme doit alors lire un fichier
 pour recharger un labyrinthe précédemment créé. L’utilisateur est alors renvoyé au menu.
 
-##### 2.3. Jouer
+##### 2.3. Jouer #####
 
 Lance une partie avec un labyrinthe préalablement chargé. L’utilisateur peut alors se déplacer
 dans les couloirs du labyrinthe avec l’aide des touches z, q, s et d suivie de la touche entrée.
 Lorsque le joueur arrive à la fin du labyrinthe, le programme lui propose à nouveau le menu
 de démarrage (créer un labyrinthe, charger un labyrinthe, jouer et quitter).
 
-#### 3. Etape 3 (8 points)
+#### 3. Etape 3 (8 points) ####
 
 Trois sortes d’objets sont éparpillées de façon aléatoire dans le labyrinthe :
 
@@ -113,7 +115,7 @@ saisir son nom et l’enregistre dans un fichier d’extension .score et au nom 
 Une nouvelle entrée sera ajoutée au menu permettant au joueur de visualiser les 10 meilleurs
 scores pour le labyrinthe actuellement chargé.
 
-#### 4. Etape 4 (10 points)
+#### 4. Etape 4 (10 points) ####
 
 On souhaite disposer de deux niveaux de difficultés. Le choix se fera au moment de la création
 du labyrinthe. Le mode facile correspond au labyrinthe précédent (parfait avec bonus/malus).
@@ -133,7 +135,7 @@ leur nombre de points de pénalité est grand.
 A chaque déplacement du joueur, tous les monstres bougent également suivant leurs propres
 paramètres. Vous utiliserez pour cela des pointeurs vers des fonctions.
 
-### Annexes
+### Annexes ###
 
 L’algorithme de génération de labyrinthe à utiliser sera l’algorithme de fusion aléatoire de
 chemins tel que décrit dans [ce lien](https://fr.wikipedia.org/wiki/Mod%C3%A9lisation_math%C3%A9matique_d%27un_labyrinthe#Fusion_al.C3.A9atoire_de_chemins)
@@ -156,6 +158,5 @@ cellules ont des identifiants différents :
 appartiennent donc au même chemin. On ne peut donc pas ouvrir le mur.
   * Si les identifiants sont différents, le mur est ouvert, et l'identifiant de la première
 cellule est affecté à toutes les cellules du second chemin.
-
 
 A project realised during my 1st year in the ENSICAEN.
