@@ -103,18 +103,9 @@ int main(int argc, char const *argv[]){
     // MU_RUN_SUITE(maze_generation_suite);
     // MU_RUN_SUITE(maze_handler_suite);
 
-    launchMenu();
+    // launchMenu();
 
-    // FILE * f = fopen(LEADERBOARD_FILE, "w+");
-    // for (int i = 0; i < 10; i++)
-    // {
-    //     leaderBoardScore temp = {0};
-    //     temp.score = 10000;
-    //     temp.name = "test";
-    //     fwrite(&(temp.score), sizeof(int), 1, f);
-    //     fwrite(temp.name, sizeof(char), 20, f);
-    // }
-    // fclose(f);
+    
 
     MU_REPORT();
     return MU_EXIT_CODE;
