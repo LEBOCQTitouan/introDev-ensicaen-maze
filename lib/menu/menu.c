@@ -2,6 +2,7 @@
 
 // TODO => error in save (while saving)
 // TODO => notification in app (error or infos)
+// TODO => conditionnal display
 
 menuType currentMenu = SELECTION;       // the menu currently in use
 maze menuMaze = {0};                    // the maze in use in the function
@@ -9,7 +10,6 @@ maze menuMaze = {0};                    // the maze in use in the function
 leaderBoardScore * scores = NULL;       // leader board scores
 menuType selectionChoice = CREATE_MAZE; // the current menu item selected in the SELECTION menu
 // create maze
-#define MAZE_CREATION_FOCUS_MAX 5       // the maximal index (menu elements) in the maze creation
 int mazeCreationWidth = 5;              // the width of the maze which will be created
 int mazeCreationHeight = 5;             // the height of the meaz which will be created
 int mazeCreationCurrentFocus = 0;       // the current menu item selected
