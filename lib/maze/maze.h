@@ -1,6 +1,8 @@
 #ifndef MAZE_H
 #define MAZE_H
 
+#include <stdbool.h>
+
 /**
  * mazeElement is an enum defining the values of the different maze elements
 */
@@ -26,6 +28,7 @@ typedef enum {
 typedef struct {
     int x, y;
     entityType type;
+    bool isAlive;
 } entity;
 
 /**
@@ -42,6 +45,7 @@ typedef struct mazes
 
     entity * entities;
     int numberOfEntity;
+    bool isUnlocked;
 } maze;
 
 #endif //MAZE_H

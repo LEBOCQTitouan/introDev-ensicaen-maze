@@ -3,32 +3,33 @@
 // TODO => error in save (while saving)
 // TODO => notification in app (error or infos)
 
-menuType currentMenu = SELECTION; // the menu currently in use
-// char * errorMessage = NULL; // TODO
-maze menuMaze = {0}; // the maze in use in the function
+menuType currentMenu = SELECTION;       // the menu currently in use
+maze menuMaze = {0};                    // the maze in use in the function
 // selection
-menuType selectionChoice = CREATE_MAZE;
+leaderBoardScore * scores = NULL;       // leader board scores
+menuType selectionChoice = CREATE_MAZE; // the current menu item selected in the SELECTION menu
 // create maze
-#define MAZE_CREATION_FOCUS_MAX 5   // the maximal index (menu elements) in the maze creation
-int mazeCreationWidth = 5;          // the width of the maze which will be created
-int mazeCreationHeight = 5;         // the height of the meaz which will be created
-int mazeCreationCurrentFocus = 0;   // the current menu item selected
-maze * newMaze = NULL;              // the maze created in the creation menu
-char * nameGenerated = NULL;        // the name of the maze created
+#define MAZE_CREATION_FOCUS_MAX 5       // the maximal index (menu elements) in the maze creation
+int mazeCreationWidth = 5;              // the width of the maze which will be created
+int mazeCreationHeight = 5;             // the height of the meaz which will be created
+int mazeCreationCurrentFocus = 0;       // the current menu item selected
+maze * newMaze = NULL;                  // the maze created in the creation menu
+char * nameGenerated = NULL;            // the name of the maze created
 // load maze
-int loadMazeNumberOfFile = 0;       // the number of save file found
-struct dirent * saveFiles = NULL;   // the array of save file loaded
-int * saveFileSkipIndex = NULL;     // the index of the file which does not correspond to a save
-int skipIndexSize = 0;              // the size of the array of file to skip
-int loadMazeCurrentFocus = 0;       // the current menu item selected
+int loadMazeNumberOfFile = 0;           // the number of save file found
+struct dirent * saveFiles = NULL;       // the array of save file loaded
+int * saveFileSkipIndex = NULL;         // the index of the file which does not correspond to a save
+int skipIndexSize = 0;                  // the size of the array of file to skip
+int loadMazeCurrentFocus = 0;           // the current menu item selected
 // play
-mazeHandler menuMazeHandler = {0};  // the maze handler used to play
+mazeHandler menuMazeHandler = {0};      // the maze handler used to play
 // save maze
-bool wouldSaveMaze = true;          // bool used to ask if the user want to save the current maze
+bool wouldSaveMaze = true;              // bool used to ask if the user want to save the current maze
 
 /**
  * The following funtions are used in the event listener bind to each key (keyboard)
 */
+
 /** selection event listenner */
 void selectionDown() {
     selectionChoice++;
@@ -132,6 +133,8 @@ void createBackspace() {
 /** load maze event listenner */
 // TODO - filename [suppr] del file
 // TODO - dnt print all files but portion with an indicator showing there are more
+// TODO - print preview of the save
+
 int isInSkipIndex(int index) {
     for (int i = 0; i < skipIndexSize; i++)
     {
@@ -223,175 +226,282 @@ void saveChoiceEnter() {
     changeMenu(SELECTION);
 }
 
-/** end event listenners functions */
+/**
+ * end event listenners functions
+ */
 
-void changeMenu(menuType newMenu) {
-    currentMenu = newMenu;
-    // all the action used in our menu
-    rawTerminal_action  arrowDown = {0},
-                        arrowUp = {0},
-                        arrowLeft = {0},
-                        arrowRight = {0},
-                        enterPressed = {0},
-                        escPressed = {0},
-                        letterPressed = {0},
-                        backspacePressed = {0};
-    // setup for the action (only void functions supported)
-    arrowDown.type = VOID_FUNCTION;
-    arrowUp.type = VOID_FUNCTION;
-    arrowLeft.type = VOID_FUNCTION;
-    arrowRight.type = VOID_FUNCTION;
-    enterPressed.type = VOID_FUNCTION;
-    escPressed.type = VOID_FUNCTION;
-    letterPressed.type = VOID_FUNCTION;
-    backspacePressed.type = VOID_FUNCTION;
+void initRawTerminalActionForDefaultAction(rawTerminal_action * action) {
+    action->func.void_function = DUMMY_FUNCTION;
+    action->type = VOID_FUNCTION;
+}
 
-    arrowDown.func.void_function = DUMMY_FUNCTION;
-    arrowUp.func.void_function = DUMMY_FUNCTION;
-    arrowLeft.func.void_function = DUMMY_FUNCTION;
-    arrowRight.func.void_function = DUMMY_FUNCTION;
-    enterPressed.func.void_function = DUMMY_FUNCTION;
-    escPressed.func.void_function = DUMMY_FUNCTION;
-    letterPressed.func.void_function = DUMMY_FUNCTION;
-    backspacePressed.func.void_function = DUMMY_FUNCTION;
-    // end setup
+// TODO error fread
+void loadLeaderBoard() {
+        FILE * leaderboardFile = fopen(LEADERBOARD_FILE, "r");
+        scores = calloc(10, sizeof(leaderBoardScore));
+        for (int i = 0; i < MAX_NUMBER_OF_SCORE; i++)
+        {
+            leaderBoardScore temp = {0};
 
-    switch (newMenu)
-    {
-    case SELECTION:
-        arrowDown.func.void_function = &selectionDown;
-        arrowUp.func.void_function = &selectionUp;
-        enterPressed.func.void_function = &enterSelection;
+            fread(&(temp.score), sizeof(int), 1, leaderboardFile);
+
+            temp.name = calloc(20, sizeof(char));
+            fread(temp.name, sizeof(char), 20, leaderboardFile);
+
+            scores[i] = temp;
+        }
+        fclose(leaderboardFile);
+}
+
+void selectionInit(rawTerminal_action *down, rawTerminal_action *up, rawTerminal_action *enter) {
+        down->func.void_function = &selectionDown;
+        up->func.void_function = &selectionUp;
+        enter->func.void_function = &enterSelection;
 
         selectionChoice = CREATE_MAZE;
-        break;
-    
-    case CREATE_MAZE:
+
+        loadLeaderBoard();
+}
+
+void createMazeInit(rawTerminal_action *down, rawTerminal_action *up, rawTerminal_action *left, rawTerminal_action *right, rawTerminal_action *enter, rawTerminal_action *letter, rawTerminal_action *backspace) {
         newMaze = calloc(1, sizeof(maze));
         mazeCreationCurrentFocus = 0;
         nameGenerated = "newMaze";
 
-        arrowDown.func.void_function = &createDown;
-        arrowUp.func.void_function = &createUp;
-        arrowLeft.func.void_function = &createLeft;
-        arrowRight.func.void_function = &createRight;
-        enterPressed.func.void_function = &createEnter;
-        letterPressed.func.void_function = &createLetter;
-        backspacePressed.func.void_function = &createBackspace;
+        down->func.void_function = &createDown;
+        up->func.void_function = &createUp;
+        left->func.void_function = &createLeft;
+        right->func.void_function = &createRight;
+        enter->func.void_function = &createEnter;
+        letter->func.void_function = &createLetter;
+        backspace->func.void_function = &createBackspace;
 
         *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated);
-        break;
-    
-    case LOAD_MAZE:
-        // opening save folder
-        loadMazeNumberOfFile = 0;
-        saveFiles = NULL;
-        saveFileSkipIndex = NULL;
-        skipIndexSize = 0;
-        loadMazeCurrentFocus = 0;
+}
 
-        DIR * d = NULL;
-        struct dirent *dir;
-        d = opendir("./data/maze");
+void loadMazeInit(rawTerminal_action *down, rawTerminal_action *up, rawTerminal_action *enter) {
+    // opening save folder
+    loadMazeNumberOfFile = 0;
+    saveFiles = NULL;
+    saveFileSkipIndex = NULL;
+    skipIndexSize = 0;
+    loadMazeCurrentFocus = 0;
 
-        if (d) {
-            while ((dir = readdir(d)) != NULL) {
-                if (loadMazeNumberOfFile == 0) {
-                    saveFiles = calloc(1, sizeof(struct dirent));
-                } else {
-                    saveFiles = realloc(saveFiles, sizeof(struct dirent) * (loadMazeNumberOfFile + 1));
-                }
-                if (dir->d_type != DT_REG) {
-                    if (saveFileSkipIndex == NULL) {
-                        saveFileSkipIndex = calloc(1, sizeof(int));
-                    } else {
-                        saveFileSkipIndex = realloc(saveFileSkipIndex, sizeof(int) * (skipIndexSize + 1));
-                    }
-                    saveFileSkipIndex[skipIndexSize] = loadMazeNumberOfFile;
-                    skipIndexSize++;
-                }
-                saveFiles[loadMazeNumberOfFile] = *dir;
-                loadMazeNumberOfFile++;
+    DIR * d = NULL;
+    struct dirent *dir;
+    d = opendir("./data/maze");
+
+    if (d) {
+        while ((dir = readdir(d)) != NULL) {
+            if (loadMazeNumberOfFile == 0) {
+                saveFiles = calloc(1, sizeof(struct dirent));
+            } else {
+                saveFiles = realloc(saveFiles, sizeof(struct dirent) * (loadMazeNumberOfFile + 1));
             }
-            closedir(d);
-        } // TODO handle error
-
-        while (isInSkipIndex(loadMazeCurrentFocus) && loadMazeCurrentFocus < (loadMazeNumberOfFile + 1))
-        {
-            loadMazeCurrentFocus++;
+            if (dir->d_type != DT_REG) {
+                if (saveFileSkipIndex == NULL) {
+                    saveFileSkipIndex = calloc(1, sizeof(int));
+                } else {
+                    saveFileSkipIndex = realloc(saveFileSkipIndex, sizeof(int) * (skipIndexSize + 1));
+                }
+                saveFileSkipIndex[skipIndexSize] = loadMazeNumberOfFile;
+                skipIndexSize++;
+            }
+            saveFiles[loadMazeNumberOfFile] = *dir;
+            loadMazeNumberOfFile++;
         }
+        closedir(d);
+    } // TODO handle error
 
-        arrowDown.func.void_function = &loadDown;
-        arrowUp.func.void_function = &loadUp;
-        enterPressed.func.void_function = &loadEnter;
-        break;
-    case PLAY:
+    while (isInSkipIndex(loadMazeCurrentFocus) && loadMazeCurrentFocus < (loadMazeNumberOfFile + 1))
+    {
+        loadMazeCurrentFocus++;
+    }
+
+    down->func.void_function = &loadDown;
+    up->func.void_function = &loadUp;
+    enter->func.void_function = &loadEnter;
+}
+
+void playInit(rawTerminal_action *down, rawTerminal_action *up, rawTerminal_action *left, rawTerminal_action *right, rawTerminal_action *z, rawTerminal_action *q, rawTerminal_action *s, rawTerminal_action *d, rawTerminal_action *esc) {
+        // reseting the data in the maze
+        // cleanup reset code
+        for (int i = 0; i < menuMaze.numberOfEntity; i++)
+        {
+            menuMaze.entities[i].isAlive = true;
+        }
+        menuMaze.isUnlocked = false;
+        
         menuMazeHandler = initMazeMovement(&menuMaze);
 
-        arrowDown.func.void_function = &playDown;
-        arrowUp.func.void_function = &playUp;
-        arrowLeft.func.void_function = &playLeft;
-        arrowRight.func.void_function = &playRight;
-        escPressed.func.void_function = &playEsc;
+        down->func.void_function = &playDown;
+        up->func.void_function = &playUp;
+        left->func.void_function = &playLeft;
+        right->func.void_function = &playRight;
+
+        z->func.void_function = &playUp;
+        q->func.void_function = &playLeft;
+        s->func.void_function = &playDown;
+        d->func.void_function = &playRight;
+
+        esc->func.void_function = &playEsc;
+}
+
+void saveMazeInit(rawTerminal_action *left, rawTerminal_action *right, rawTerminal_action *enter) {
+        wouldSaveMaze = true;
+
+        left->func.void_function = &saveChoiceLeft;
+        right->func.void_function = &saveChoiceRight;
+        enter->func.void_function = &saveChoiceEnter;
+}
+
+void initAllRawTerminalActions(rawTerminal_action *up, rawTerminal_action *down, rawTerminal_action *right, rawTerminal_action *left, rawTerminal_action *z, rawTerminal_action *q, rawTerminal_action *s, rawTerminal_action *d, rawTerminal_action *enter, rawTerminal_action *esc, rawTerminal_action *backspace, rawTerminal_action *letter) {
+    initRawTerminalActionForDefaultAction(up);
+    initRawTerminalActionForDefaultAction(down);
+    initRawTerminalActionForDefaultAction(right);
+    initRawTerminalActionForDefaultAction(left);
+    initRawTerminalActionForDefaultAction(z);
+    initRawTerminalActionForDefaultAction(q);
+    initRawTerminalActionForDefaultAction(s);
+    initRawTerminalActionForDefaultAction(d);
+    initRawTerminalActionForDefaultAction(enter);
+    initRawTerminalActionForDefaultAction(backspace);
+    initRawTerminalActionForDefaultAction(esc);
+    initRawTerminalActionForDefaultAction(letter);
+}
+
+void assignAllRawTerminalActions(rawTerminal_action *up, rawTerminal_action *down, rawTerminal_action *right, rawTerminal_action *left, rawTerminal_action *z, rawTerminal_action *q, rawTerminal_action *s, rawTerminal_action *d, rawTerminal_action *enter, rawTerminal_action *esc, rawTerminal_action *backspace, rawTerminal_action *letter) {
+    assignActionToKeyBoardInput(INPUT_ARROW_UP, up);
+    assignActionToKeyBoardInput(INPUT_ARROW_DOWN, down);
+    assignActionToKeyBoardInput(INPUT_ARROW_RIGHT, right);
+    assignActionToKeyBoardInput(INPUT_ARROW_LEFT, left);
+    assignActionToKeyBoardInput(INPUT_z, z);
+    assignActionToKeyBoardInput(INPUT_q, q);
+    assignActionToKeyBoardInput(INPUT_s, s);
+    assignActionToKeyBoardInput(INPUT_d, d);
+    assignActionToKeyBoardInput(INPUT_ENTER, enter);
+    assignActionToKeyBoardInput(INPUT_ESCAPE_CHAR, esc);
+    assignActionToKeyBoardInput(INPUT_BACKSPACE, backspace);
+    assignActionToKeyBoardInput(INPUT_LETTER, letter);
+}
+
+void changeMenu(menuType newMenu) {
+    currentMenu = newMenu;
+
+    rawTerminal_action arrowUp = {0};
+    rawTerminal_action arrowDown = {0};
+    rawTerminal_action arrowRight = {0};
+    rawTerminal_action arrowLeft = {0};
+    rawTerminal_action zPressed = {0};
+    rawTerminal_action qPressed = {0};
+    rawTerminal_action sPressed = {0};
+    rawTerminal_action dPressed = {0};
+    rawTerminal_action enterPressed = {0};
+    rawTerminal_action escPressed = {0};
+    rawTerminal_action backspacePressed = {0};
+    rawTerminal_action letterPressed = {0};
+
+    initAllRawTerminalActions(
+        &arrowUp,
+        &arrowDown,
+        &arrowRight,
+        &arrowLeft,
+        &zPressed,
+        &qPressed,
+        &sPressed,
+        &dPressed,
+        &enterPressed,
+        &escPressed,
+        &backspacePressed,
+        &letterPressed
+    );
+
+    switch (newMenu)
+    {
+    case SELECTION:
+        selectionInit(&arrowDown, &arrowUp, &enterPressed);
+        break;
+    case CREATE_MAZE:
+        createMazeInit(&arrowDown, &arrowUp, &arrowLeft, &arrowRight, &enterPressed, &letterPressed, &backspacePressed);
+        break;
+    case LOAD_MAZE:
+        loadMazeInit(&arrowDown, &arrowUp, &enterPressed);
+        break;
+    case PLAY:
+        playInit(&arrowDown, &arrowUp, &arrowLeft, &arrowRight, &zPressed, &qPressed, &sPressed, &dPressed, &escPressed);
         break;
     case SAVE_MAZE_CHOICE:
-        wouldSaveMaze = true;
-        arrowLeft.func.void_function = &saveChoiceLeft;
-        arrowRight.func.void_function = &saveChoiceRight;
-        enterPressed.func.void_function = &saveChoiceEnter;
+        saveMazeInit(&arrowLeft, &arrowRight, &enterPressed);
         break;
     default: break;
     }
-
-    assignActionToKeyBoardInput(INPUT_ARROW_DOWN, &arrowDown);
-    assignActionToKeyBoardInput(INPUT_ARROW_UP, &arrowUp);
-    assignActionToKeyBoardInput(INPUT_ARROW_RIGHT, &arrowRight);
-    assignActionToKeyBoardInput(INPUT_ARROW_LEFT, &arrowLeft);
-    assignActionToKeyBoardInput(INPUT_ENTER, &enterPressed);
-    assignActionToKeyBoardInput(INPUT_ESCAPE_CHAR, &escPressed);
-    assignActionToKeyBoardInput(INPUT_LETTER, &letterPressed);
-    assignActionToKeyBoardInput(INPUT_BACKSPACE, &backspacePressed);
+    
+    assignAllRawTerminalActions(
+        &arrowUp,
+        &arrowDown,
+        &arrowRight,
+        &arrowLeft,
+        &zPressed,
+        &qPressed,
+        &sPressed,
+        &dPressed,
+        &enterPressed,
+        &escPressed,
+        &backspacePressed,
+        &letterPressed
+    );
 }
 
-void display() {
-    // if (errorMessage != NULL) printfColored(WHITE, RED, BOLD, "/!\\ %s /!\\ \n", errorMessage);
-    switch (currentMenu)
+void displayLeaderboard() {
+    printfColored(BLACK, WHITE, UNDERLINE, "- LEADERBOARD -\n");
+    printfColored(RED, DEFAULT_COLOR, BOLD, "%10d\t%s", scores[0].score, scores[0].name);
+    printf("\n");
+    printfColored(YELLOW, DEFAULT_COLOR, BOLD, "%10d\t%s", scores[1].score, scores[1].name);
+    printf("\n");
+    for (int i = 2; i < MAX_NUMBER_OF_SCORE; i++)
     {
-    case SELECTION:
+        printfColored(WHITE, DEFAULT_COLOR, BOLD, "%10d\t%s", scores[i].score, scores[i].name);
+        printf("\n");
+    }
+}
+
+void displaySelectionMenuElement(char * content, menuType type) {
+    if (selectionChoice == type) {
+        printfColored(BLACK, WHITE, BOLD, "%s", content);
+    } else {
+        printfColored(WHITE, DEFAULT_COLOR, BOLD, "%s", content);
+    }
+}
+
+void displaySelectionMenu() {
+    displaySelectionMenuElement("Create maze", CREATE_MAZE);
+    printf("\n");
+    displaySelectionMenuElement("Load maze", LOAD_MAZE);
+    printf("\n");
+    displaySelectionMenuElement("Play", PLAY);
+    printf("\n");
+    displaySelectionMenuElement("Exit", EXIT);
+    printf("\n");
+}
+
+void displaySelection() {
         printfColored(BLACK, WHITE, UNDERLINE, "- SELECTION -\n");
+        printf("\n");
+        displayLeaderboard();
+        printf("\n");
+        displayMaze(menuMaze);
+        displaySelectionMenu();
+}
 
-        if (menuMaze.height != 0 && menuMaze.width != 0) displayMaze(menuMaze);
-
-        if (selectionChoice == CREATE_MAZE) {
-            printfColored(BLACK, WHITE, BOLD, "Create maze");
-        } else {
-            printfColored(WHITE, DEFAULT_COLOR, BOLD, "Create maze");
-        }
-        printf("\n");
-        if (selectionChoice == LOAD_MAZE) {
-            printfColored(BLACK, WHITE, BOLD, "Load maze");
-        } else {
-            printfColored(WHITE, DEFAULT_COLOR, BOLD, "Load maze");
-        }
-        printf("\n");
-        if (selectionChoice == PLAY) {
-            printfColored(BLACK, WHITE, BOLD, "Play");
-        } else {
-            printfColored(WHITE, DEFAULT_COLOR, BOLD, "Play");
-        }
-        printf("\n");
-        if (selectionChoice == EXIT) {
-            printfColored(BLACK, WHITE, BOLD, "Exit");
-        } else {
-            printfColored(WHITE, DEFAULT_COLOR, BOLD, "Exit");
-        }
-        printf("\n");
-        break;
-    case CREATE_MAZE:
-        printfColored(BLACK, WHITE, UNDERLINE, "- CREATE MAZE -\n");
+// TODO cleanup display
+void displayMazeCreation() {
+        printfColored(BLACK, WHITE, UNDERLINE, "- CREATE MAZE -");
+        printf("\n\n");
         printfColored(YELLOW, DEFAULT, UNDERLINE, "[INFO] type any char to change the name (you can erase with backspace)");
         printf("\n\n");
+
         if (newMaze != NULL) displayMaze(*newMaze);
+
         switch (mazeCreationCurrentFocus)
         {
         case 0:
@@ -441,48 +551,88 @@ void display() {
             break;
         default: break;
         }
+}
+
+void displayloadMaze() {
+    printfColored(BLACK, WHITE, UNDERLINE, "- LOAD MAZE -");
+    printf("\n");
+
+    printfColored(YELLOW, DEFAULT_COLOR, BOLD, "%d save files found (%d files in the folder)", loadMazeNumberOfFile - skipIndexSize, loadMazeNumberOfFile);
+    printf("\n");
+
+    if (loadMazeCurrentFocus != loadMazeNumberOfFile) {
+        for (int i = 0; i < loadMazeNumberOfFile; i++)
+        {
+            if (saveFiles[i].d_type == DT_REG) {
+                if (loadMazeCurrentFocus == i) {
+                    printfColored(WHITE, GREEN, BOLD, saveFiles[i].d_name);
+                    printfColored(GREEN, DEFAULT_COLOR, BOLD, "[load this save]");
+                } else printfColored(YELLOW, DEFAULT_COLOR, UNDERLINE, saveFiles[i].d_name);
+                printf("\n");
+            }
+        }
+        printfColored(RED, DEFAULT_COLOR, BOLD, "Back to menu\n");
+    } else {
+        for (int i = 0; i < loadMazeNumberOfFile; i++)
+        {
+            if (saveFiles[i].d_type == DT_REG) {
+                printfColored(YELLOW, DEFAULT_COLOR, UNDERLINE, saveFiles[i].d_name);
+                printf("\n");
+            }
+        }
+        printfColored(WHITE, RED, BOLD, "Back to menu\n");
+    }
+}
+
+void displayPlay() {
+    printfColored(BLACK, WHITE, UNDERLINE, "- PLAY -");
+    printf("\n");
+
+    displayMazeWithPlayer(menuMazeHandler);
+
+    printfColored(RED, DEFAULT_COLOR, ITALIC, "press [esc] to return to selection menu");
+
+    printf(""); // reset terminal buffer to correct display errors
+}
+
+void displaySaveMazeChoice() {
+    printfColored(BLACK, WHITE, UNDERLINE, "- SAVE MAZE -");
+    printf("\n");
+
+    displayMaze(menuMaze);
+    printfColored(WHITE, DEFAULT_COLOR, BOLD, "Would you like to save this maze ?");
+    printf("\n");
+
+    if (wouldSaveMaze) {
+        printfColored(GREEN, WHITE, BOLD, "y");
+        printf(" - ");
+        printfColored(DEFAULT_COLOR, DEFAULT_COLOR, BOLD, "n");
+    } else {
+        printfColored(DEFAULT_COLOR, DEFAULT_COLOR, BOLD, "y");
+        printf(" - ");
+        printfColored(RED, WHITE, BOLD, "n");
+    }
+
+    printf("\n");
+}
+
+void display() {
+    switch (currentMenu)
+    {
+    case SELECTION:
+        displaySelection();
+        break;
+    case CREATE_MAZE:
+        displayMazeCreation();
         break;
     case LOAD_MAZE:
-        printfColored(BLACK, WHITE, UNDERLINE, "- LOAD MAZE -\n");
-        printfColored(YELLOW, DEFAULT_COLOR, BOLD, "%d save files found (%d files in the folder)\n", loadMazeNumberOfFile - skipIndexSize, loadMazeNumberOfFile);
-        if (loadMazeCurrentFocus != loadMazeNumberOfFile) {
-            for (int i = 0; i < loadMazeNumberOfFile; i++)
-            {
-                if (saveFiles[i].d_type == DT_REG) {
-                    if (loadMazeCurrentFocus == i) {
-                        printfColored(WHITE, GREEN, BOLD, saveFiles[i].d_name);
-                        printfColored(GREEN, DEFAULT_COLOR, BOLD, "[load this save]");
-                    } else printfColored(YELLOW, DEFAULT_COLOR, UNDERLINE, saveFiles[i].d_name);
-                    printf("\n");
-                }
-            }
-            printfColored(RED, DEFAULT_COLOR, BOLD, "Back to menu\n");
-        } else {
-            for (int i = 0; i < loadMazeNumberOfFile; i++)
-            {
-                if (saveFiles[i].d_type == DT_REG) {
-                    printfColored(YELLOW, DEFAULT_COLOR, UNDERLINE, saveFiles[i].d_name);
-                    printf("\n");
-                }
-            }
-            printfColored(WHITE, RED, BOLD, "Back to menu\n");
-        }
+        displayloadMaze();
         break;
     case PLAY:
-        printfColored(BLACK, WHITE, UNDERLINE, "- PLAY -\n");
-        displayMazeWithPlayer(menuMazeHandler);
-        printfColored(RED, DEFAULT_COLOR, ITALIC, "press [esc] to return to selection menu");
-        printf("");
+        displayPlay();
         break;
     case SAVE_MAZE_CHOICE:
-        printfColored(BLACK, WHITE, UNDERLINE, "- SAVE MAZE -\n");
-        displayMaze(menuMaze);
-        printfColored(WHITE, DEFAULT_COLOR, BOLD, "Would you like to save this maze ?");
-        printf("\n");
-        printfColored(!wouldSaveMaze ? WHITE : BLACK, !wouldSaveMaze ? DEFAULT_COLOR : WHITE, BOLD, "y"); // TODO change terner
-        printf(" - ");
-        printfColored(wouldSaveMaze ? WHITE : BLACK, wouldSaveMaze ? DEFAULT_COLOR : WHITE, BOLD, "n"); // TODO change terner
-        printf("\n");
+        displaySaveMazeChoice();
         break;
     default: break;
     }
@@ -490,27 +640,25 @@ void display() {
 }
 
 void launchMenu() {
-
     enableTerminalRawMode();
     makeCursorInvisible();
-    // setup for the menu
+
+    // initial state of the app
+    menuMaze = generateMaze(10, 10, "startingMaze");
     changeMenu(SELECTION);
+
     // action in the terminal
     while (currentMenu != EXIT)
     {
         // clean the termial for new display
         home();
         clearTerminal();
-        // clearAllTerminal();
 
         display();
 
         char * input = HandleRawModeKeyboard();
-        // if (errorMessage != NULL) {
-        //     free(errorMessage);
-        //     errorMessage = NULL;
-        // }
     }
+
     makeCursorVisible();
     disableTerminalRawMode();
 }

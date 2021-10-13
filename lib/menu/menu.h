@@ -1,6 +1,9 @@
 #ifndef MENU_H
 #define MENU_H
 
+#define LEADERBOARD_FILE "./data/game.score"
+#define MAX_NUMBER_OF_SCORE 10
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <dirent.h> 
@@ -16,7 +19,7 @@
 /**
  * menuType is a type defined from an enum of all the possibles states of the menu
 */
-typedef enum {
+typedef enum menuTypes {
     SELECTION,
     CREATE_MAZE,
     LOAD_MAZE,
@@ -24,6 +27,11 @@ typedef enum {
     EXIT,
     SAVE_MAZE_CHOICE
 } menuType;
+
+typedef struct {
+    char * name;
+    int score;
+} leaderBoardScore;
 
 /**
  * launch menu will start the menu display in the terminal

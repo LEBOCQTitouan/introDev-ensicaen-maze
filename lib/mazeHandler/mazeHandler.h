@@ -24,6 +24,7 @@ typedef struct
 typedef struct {
     player mazePlayer;
     maze * maze;
+    int score;
 } mazeHandler;
 
 typedef enum {

@@ -1,5 +1,7 @@
 #include "mazeHandler.h"
 
+// TODO reset end game
+
 void readWidth(maze * m, FILE * filePtr) {
     fread(&(m->width), sizeof(int), 1, filePtr);
 }
@@ -19,6 +21,7 @@ void readElements(maze * m, FILE * filePtr) {
     }
 }
 
+// TODO edit for entity save
 maze loadMAze(char * name) {
     maze loadedMaze = {0};
     FILE * mazeFilePtr = NULL;
@@ -82,7 +85,37 @@ mazeHandler initMazeMovement(maze * m) {
     handler.mazePlayer = p;
     handler.maze = m;
 
+    handler.score = 1000;
+
     return handler;
+}
+
+void updateScore(mazeHandler * handler) {
+    for (int i = 0; i < handler->maze->numberOfEntity; i++)
+    {
+        entity current = handler->maze->entities[i];
+        if (
+            current.x == handler->mazePlayer.position.x && current.y == handler->mazePlayer.position.y
+            && (current.isAlive || current.type == KEY)
+        ) {
+            switch (current.type)
+            {
+            case TRAP:
+                handler->score -= 100;
+                break;
+            case TREASURE:
+                handler->score += 100;
+                break;
+            case KEY:
+                if (!handler->maze->isUnlocked) handler->maze->isUnlocked = true;
+                break;
+            
+            default: break;
+            }
+            handler->maze->entities[i].isAlive = false;
+        }
+    }
+    
 }
 
 bool movePlayer(mazeHandler * handler, directionPlayer direction) {
@@ -103,6 +136,8 @@ bool movePlayer(mazeHandler * handler, directionPlayer direction) {
             break;
         default: break;
         }
+        updateScore(handler);
+        handler->score -= 10;
     }
 }
 
@@ -110,24 +145,61 @@ bool isInMazeCoord(maze m, int x, int y) {
     return ( x >= 0 && y >= 0 && x < m.width && y < m.height );
 }
 
+// TODO cleaner boolean expr
 bool isPossibleDirection(mazeHandler handler, directionPlayer direction) {
     switch (direction)
     {
     case TOP: return (
             isInMazeCoord(*handler.maze, handler.mazePlayer.position.x, handler.mazePlayer.position.y - 1)
-            && handler.maze->elements[handler.mazePlayer.position.x][handler.mazePlayer.position.y - 1] != MAZE_WALL
+            && (
+                handler.maze->elements[handler.mazePlayer.position.x][handler.mazePlayer.position.y - 1] != MAZE_WALL
+                && (
+                    handler.maze->elements[handler.mazePlayer.position.x][handler.mazePlayer.position.y - 1] != MAZE_EXIT
+                    || (
+                        handler.maze->elements[handler.mazePlayer.position.x][handler.mazePlayer.position.y - 1] == MAZE_EXIT
+                        && handler.maze->isUnlocked
+                    )
+                )
+            )
         );
     case BOTTOM: return (
             isInMazeCoord(*handler.maze, handler.mazePlayer.position.x, handler.mazePlayer.position.y + 1)
-            && handler.maze->elements[handler.mazePlayer.position.x][handler.mazePlayer.position.y + 1] != MAZE_WALL
+            && (
+                handler.maze->elements[handler.mazePlayer.position.x][handler.mazePlayer.position.y + 1] != MAZE_WALL
+                && (
+                    handler.maze->elements[handler.mazePlayer.position.x][handler.mazePlayer.position.y + 1] != MAZE_EXIT
+                    || (
+                        handler.maze->elements[handler.mazePlayer.position.x][handler.mazePlayer.position.y + 1] == MAZE_EXIT
+                        && handler.maze->isUnlocked
+                    )
+                )
+            )
         );
     case LEFT: return (
             isInMazeCoord(*handler.maze, handler.mazePlayer.position.x - 1, handler.mazePlayer.position.y)
-            && handler.maze->elements[handler.mazePlayer.position.x - 1][handler.mazePlayer.position.y] != MAZE_WALL
+            && (
+                handler.maze->elements[handler.mazePlayer.position.x - 1][handler.mazePlayer.position.y] != MAZE_WALL
+                && (
+                    handler.maze->elements[handler.mazePlayer.position.x - 1][handler.mazePlayer.position.y] != MAZE_EXIT
+                    || (
+                        handler.maze->elements[handler.mazePlayer.position.x -1][handler.mazePlayer.position.y] != MAZE_WALL
+                        && handler.maze->isUnlocked
+                    )
+                )
+            )
         );
     case RIGHT: return (
             isInMazeCoord(*handler.maze, handler.mazePlayer.position.x + 1, handler.mazePlayer.position.y)
-            && handler.maze->elements[handler.mazePlayer.position.x + 1][handler.mazePlayer.position.y] != MAZE_WALL
+            && (
+                handler.maze->elements[handler.mazePlayer.position.x + 1][handler.mazePlayer.position.y] != MAZE_WALL
+                && (
+                    handler.maze->elements[handler.mazePlayer.position.x + 1][handler.mazePlayer.position.y] != MAZE_EXIT
+                    || (
+                        handler.maze->elements[handler.mazePlayer.position.x + 1][handler.mazePlayer.position.y] == MAZE_EXIT
+                        && handler.maze->isUnlocked
+                    )
+                )
+            )
         );
     
     default: return false;

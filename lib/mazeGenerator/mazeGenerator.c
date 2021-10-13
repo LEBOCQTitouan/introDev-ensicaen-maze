@@ -291,6 +291,7 @@ maze generateMaze(int width, int height, char * name) {
 
         newMaze.entities[newMaze.numberOfEntity].x = x;
         newMaze.entities[newMaze.numberOfEntity].y = y;
+        newMaze.entities[newMaze.numberOfEntity].isAlive = true;
         newMaze.numberOfEntity++;
     }
 
