@@ -26,7 +26,8 @@ typedef enum menuTypes {
     LOAD_MAZE,
     PLAY,
     EXIT,
-    SAVE_MAZE_CHOICE
+    SAVE_MAZE_CHOICE,
+    BEST_SCORE
 } menuType;
 /**
  * leaderBoardScore is type based on a struct leaderBoardScores used to store the

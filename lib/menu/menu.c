@@ -25,6 +25,8 @@ int loadMazeCurrentFocus = 0;           // the current menu item selected
 mazeHandler menuMazeHandler = {0};      // the maze handler used to play
 // save maze
 bool wouldSaveMaze = true;              // bool used to ask if the user want to save the current maze
+// best score
+char * bestScoreName = NULL;
 
 /**
  * The following funtions are used in the event listener bind to each key (keyboard)
@@ -180,9 +182,23 @@ void loadEnter() {
 }
 
 /** play event listenner*/
+
+int scoreIsHigherThanLeaderBoard(int currentScore) {
+    for (int i = 0; i < MAX_NUMBER_OF_SCORE; i++)
+    {
+        if (currentScore > (scores[i].score)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 void checkEndGame() {
     if (menuMazeHandler.maze->elements[menuMazeHandler.mazePlayer.position.x][menuMazeHandler.mazePlayer.position.y] == MAZE_EXIT) {
-        changeMenu(SELECTION);
+        int indexInSCore = scoreIsHigherThanLeaderBoard(menuMazeHandler.score);
+        if (indexInSCore != -1) {
+            changeMenu(BEST_SCORE);
+        } else changeMenu(SELECTION);
     }
 }
 
@@ -219,11 +235,69 @@ void saveChoiceRight() {
     wouldSaveMaze = !wouldSaveMaze;
 }
 
+/**
+ * return the index of the score which is lower than current esle -1
+*/
+
 void saveChoiceEnter() {
     if (wouldSaveMaze) {
         saveMaze(menuMaze);
     }
     changeMenu(SELECTION);
+}
+
+/** best score event listenner */
+
+void bestScoreLetter() {
+    if (strlen(bestScoreName) < 20) {
+        char * input = getBufferValue();
+
+        char * newNameBestScore = NULL;
+        newNameBestScore = calloc(strlen(bestScoreName) + strlen(input) + 1, sizeof(char));
+        newNameBestScore[0] = '\0';
+        strcat(newNameBestScore, bestScoreName);
+        strcat(newNameBestScore, input);
+
+        bestScoreName = newNameBestScore;
+    }
+}
+
+void bestScoreBackspace() {
+    if (strlen(bestScoreName) > 0) {
+        char * newBestScore = NULL;
+        newBestScore = calloc(strlen(bestScoreName), sizeof(char));
+        strncpy(newBestScore, bestScoreName, strlen(bestScoreName) - 1);
+
+        bestScoreName = newBestScore;
+    }
+}
+
+void insertValue(int index, int score, char * name) {
+    if (index + 1 < MAX_NUMBER_OF_SCORE) insertValue(index+1, scores[index].score, scores[index].name);
+
+    scores[index].score = score;
+
+    char * newName = calloc(20, sizeof(char));
+    strcpy(newName, name);
+    scores[index].name = newName;
+}
+
+void saveBestScore() {
+    int index = scoreIsHigherThanLeaderBoard(menuMazeHandler.score);
+    insertValue(index, menuMazeHandler.score, bestScoreName);
+
+    FILE * f = fopen(LEADERBOARD_FILE, "w");
+    for (int i = 0; i < MAX_NUMBER_OF_SCORE; i++)
+    {
+        fwrite(&(scores[i].score), sizeof(int), 1, f);
+        fwrite(scores[i].name, sizeof(char), 20, f);
+    }
+    fclose(f);
+}
+
+void bestScoreEnter() {
+    changeMenu(SELECTION);
+    saveBestScore();
 }
 
 /**
@@ -433,6 +507,12 @@ void changeMenu(menuType newMenu) {
     case SAVE_MAZE_CHOICE:
         saveMazeInit(&arrowLeft, &arrowRight, &enterPressed);
         break;
+    case BEST_SCORE:
+        bestScoreName = "Yay I am the best !";
+        letterPressed.func.void_function = &bestScoreLetter;
+        backspacePressed.func.void_function = &bestScoreBackspace;
+        enterPressed.func.void_function = &bestScoreEnter;
+        break;
     default: break;
     }
     
@@ -634,6 +714,14 @@ void display() {
         break;
     case SAVE_MAZE_CHOICE:
         displaySaveMazeChoice();
+        break;
+    case BEST_SCORE:
+        printfColored(WHITE, YELLOW, UNDERLINE, "You have set a new record !!!");
+        printf("\n");
+        printf("\n");
+        printfColored(WHITE, DEFAULT_COLOR, DEFAULT_STYLE, "Please enter your name : ");
+        printfColored(GREEN, DEFAULT_COLOR, UNDERLINE, "%s", bestScoreName);
+        printf("\n");
         break;
     default: break;
     }
