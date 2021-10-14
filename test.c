@@ -48,6 +48,7 @@ MU_TEST_SUITE(maze_generation_suite) {
     MU_RUN_TEST(solve_maze_check);
 }
 
+// TODO entities
 MU_TEST(save_maze_check) {
     char filename[20] = {0};
     gen_random(filename, 20);
@@ -59,11 +60,23 @@ MU_TEST(save_maze_check) {
 
     maze checkMazeLoad = loadMAze(filename);
 
-    if (
-        compareMaze(checkMaze, checkMazeLoad) != true
-        || strcmp(checkMaze.name, checkMazeLoad.name) != 0
-    ) {
-        mu_fail("Loaded maze is not equal to starting maze");
+    if (strcmp(checkMaze.name, checkMazeLoad.name) != 0) mu_fail("Loaded maze name is different from the initial maze");
+    if (compareMaze(checkMaze, checkMazeLoad) != true) mu_fail("Loaded maze elements are not equal to starting maze elements");
+    if (checkMaze.numberOfEntity != checkMazeLoad.numberOfEntity) {
+        mu_fail("Loaded maze number of entity differs from initial maze");
+    } else {
+        for (int i = 0; i < checkMaze.numberOfEntity; i++)
+        {
+            if (
+                checkMaze.entities[i].x != checkMazeLoad.entities[i].x
+                || checkMaze.entities[i].y != checkMazeLoad.entities[i].y
+                || checkMaze.entities[i].type != checkMazeLoad.entities[i].type
+            ) {
+                char * message = calloc(100, sizeof(char)); // danger if too big number
+                sprintf(message, "Loaded maze %d entity differs from initial maze", i);
+                mu_fail(message);
+            }
+        }
     }
 
     char * pathToFile = NULL;

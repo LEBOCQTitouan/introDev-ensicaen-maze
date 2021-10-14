@@ -21,6 +21,28 @@ void readElements(maze * m, FILE * filePtr) {
     }
 }
 
+entity loadEntity(FILE * f) {
+    entity en = {0};
+    en.isAlive = true;
+    fread(&(en.x), sizeof(int), 1, f);
+    fread(&(en.y), sizeof(int), 1, f);
+    fread(&(en.type), sizeof(entityType), 1, f);
+    return en;
+}
+
+void loadEntities(maze * m, FILE * f) {
+    int size;
+    fread(&size, sizeof(int), 1, f);
+    entity * entities = calloc(size, sizeof(entity));
+    for (int i = 0; i < size; i++)
+    {
+        entities[i] = loadEntity(f);
+    }
+    
+    m->numberOfEntity = size;
+    m->entities = entities;
+}
+
 // TODO edit for entity save
 maze loadMAze(char * name) {
     maze loadedMaze = {0};
@@ -36,11 +58,55 @@ maze loadMAze(char * name) {
     readWidth(&loadedMaze, mazeFilePtr);
     readHeight(&loadedMaze, mazeFilePtr);
     readElements(&loadedMaze, mazeFilePtr);
+    loadEntities(&loadedMaze, mazeFilePtr);
     loadedMaze.name = name;
 
     free(fileName);
     fclose(mazeFilePtr);
     return loadedMaze;
+}
+
+
+int saveWidth(int width, FILE * f) {
+    return fwrite(&width, sizeof(int), 1, f);
+}
+
+int saveHeight(int height, FILE * f) {
+    return fwrite(&height, sizeof(int), 1, f);
+}
+
+int saveElements(int width, int height, mazeElement ** elements, FILE * f) {
+    int writingState = 0;
+    for (int i = 0; i < width; i++)
+    {
+        for (int j = 0; j < height; j++)
+        {
+            writingState = fwrite(&(elements[i][j]), sizeof(int), 1, f);
+        }
+    }
+    return writingState;
+}
+
+// int x, y;
+// entityType type;
+// bool isAlive;
+int saveEntity(entity en, FILE * f) {
+    int writtingState = 0;
+    writtingState = fwrite(&(en.x), sizeof(int), 1, f);
+    writtingState = fwrite(&(en.y), sizeof(int), 1, f);
+    writtingState = fwrite(&(en.type), sizeof(entityType), 1, f);
+    return writtingState;
+}
+
+int saveEntities(int n, entity * entities, FILE * f) {
+    int writingState = 0;
+    writingState = fwrite(&n, sizeof(int), 1, f);
+    for (int i = 0; i < n; i++)
+    {
+        entity * current = &(entities[i]);
+        writingState = saveEntity(*current, f);
+    }
+    return writingState;
 }
 
 int saveMaze(maze m) {
@@ -50,28 +116,16 @@ int saveMaze(maze m) {
     fileName = strcpy(fileName, SAVE_FOLDER);
     fileName = strcat(fileName, m.name);
     fileName = strcat(fileName, MAZE_EXT);
-
     mazeFilePtr = fopen(fileName, "w");
+    free(fileName);
 
     int writingState = 0;
-    writingState = fwrite(&(m.width), sizeof(int), 1, mazeFilePtr);
-    writingState = fwrite(&(m.height), sizeof(int), 1, mazeFilePtr);
 
-    for (int i = 0; i < m.width; i++)
-    {
-        for (int j = 0; j < m.height; j++)
-        {
-            writingState = fwrite(&(m.elements[i][j]), sizeof(int), 1, mazeFilePtr);
-        }
-    }
+    writingState = saveWidth(m.width, mazeFilePtr);
+    writingState = saveHeight(m.height, mazeFilePtr);
+    writingState = saveElements(m.width, m.height, m.elements, mazeFilePtr);
+    writingState = saveEntities(m.numberOfEntity, m.entities, mazeFilePtr);
 
-    int size = strlen(m.name);
-    size++;
-    writingState = fwrite(&size, sizeof(int), 1, mazeFilePtr);
-    writingState = fwrite(m.name, sizeof(char), strlen(m.name), mazeFilePtr);
-    writingState = fwrite("\0", sizeof(char), 1, mazeFilePtr);
-
-    free(fileName);
     fclose(mazeFilePtr);
     return 0;
 }

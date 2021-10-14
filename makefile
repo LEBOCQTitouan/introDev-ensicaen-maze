@@ -1,7 +1,8 @@
 # defining vars
-CC=gcc
+CC = gcc
 
-CFLAGS=-Wall -O
+CFLAGS = -Wall -O
+# CFLAGS=-O -ansi - Wall -Wextra -pedantic
 LDFLAGS=
 
 LIB=lib/

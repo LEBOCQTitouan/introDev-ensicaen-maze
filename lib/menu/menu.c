@@ -2,7 +2,8 @@
 
 // TODO => error in save (while saving)
 // TODO => notification in app (error or infos)
-// TODO => conditionnal display
+// TODO => conditionnal display (Victor)
+// TODO create file score at start
 
 menuType currentMenu = SELECTION;       // the menu currently in use
 maze menuMaze = {0};                    // the maze in use in the function
