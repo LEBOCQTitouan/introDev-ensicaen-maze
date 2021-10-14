@@ -60,6 +60,12 @@ void displayMazeEntity(maze * maze, entityType entity) {
     case TRAP:
         printfColored(DEFAULT_COLOR, RED, BOLD, "Tr");
         break;
+    case GHOST:
+        printfColored(WHITE, CYAN, DEFAULT_STYLE, "Gh");
+        break;
+    case TROLL:
+        printfColored(WHITE, RED, DEFAULT_STYLE, "T-");
+        break;
     default:
         printfColored(RED, DEFAULT, BOLD, "EE");
         break;

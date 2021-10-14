@@ -26,6 +26,14 @@ typedef struct {
     int jneighbour2;
 } wall;
 
-maze generateMaze(int width, int height, char * name);
+/**
+ * difficulty is an enum used to define the maze difficulty
+*/
+typedef enum generation_difficulties {
+    NORMAL_MODE,
+    HARDCORE_MODE
+} generation_difficulty;
+
+maze generateMaze(int width, int height, char * name, generation_difficulty difficulty);
 
 #endif //MAZE_GENERATOR_H

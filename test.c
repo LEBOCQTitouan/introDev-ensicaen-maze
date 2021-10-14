@@ -23,7 +23,7 @@ void gen_random(char *s, const int len) {
 MU_TEST(even_size_check) { // TODO
     int width = MIN_SIZE + rand() %  MAX_SIZE,
         height = MIN_SIZE + rand() %  MAX_SIZE;
-    maze testMaze = generateMaze(width, height, "test");
+    maze testMaze = generateMaze(width, height, "test", NORMAL_MODE);
     mu_check(testMaze.width % 2 == 1 && testMaze.height % 2 == 1);
 }
 
@@ -34,7 +34,7 @@ MU_TEST(odd_size_check) { // TODO
     if (width % 2 == 0) width++;
     if (height % 2 == 0) height++;
 
-    maze testMaze = generateMaze(width, height, "test");
+    maze testMaze = generateMaze(width, height, "test", NORMAL_MODE);
     mu_check(testMaze.width % 2 == 1 && testMaze.height % 2 == 1);
 }
 
@@ -53,7 +53,7 @@ MU_TEST(save_maze_check) {
     char filename[20] = {0};
     gen_random(filename, 20);
     
-    maze checkMaze = generateMaze(rand() % 100 + 5, rand() % 100 + 5, filename);
+    maze checkMaze = generateMaze(rand() % 100 + 5, rand() % 100 + 5, filename, NORMAL_MODE);
 
     // int saveStatus = saveMaze(checkMaze);
     saveMaze(checkMaze);
@@ -101,6 +101,10 @@ int main(int argc, char const *argv[]){
 
     MU_RUN_SUITE(maze_generation_suite);
     MU_RUN_SUITE(maze_handler_suite);
+
+    maze test = generateMaze(50, 50, "test", HARDCORE_MODE);
+    printf("\n");
+    displayMaze(test);
 
     MU_REPORT();
     return MU_EXIT_CODE;

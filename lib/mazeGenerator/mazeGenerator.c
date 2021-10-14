@@ -203,7 +203,11 @@ int initAllWAlls(wall ** walls, int width, int height) {
     return numberOfWalls;
 }
 
-maze generateMaze(int width, int height, char * name) {
+void destroyWall(wall w, maze * m) {
+    m->elements[(w.ineighbour1 + w.ineighbour2) / 2][(w.jneighbour1 + w.jneighbour2) / 2] = MAZE_CORRIDOR;
+}
+
+maze generateMaze(int width, int height, char * name, generation_difficulty difficulty) {
     if (width % 2 == 0) width--;
     if (height % 2 == 0) height--;
     srand(time(NULL));
@@ -260,8 +264,10 @@ maze generateMaze(int width, int height, char * name) {
                 }
             }
             // make the wall in the maze
-            newMaze.elements[(choice.ineighbour1 + choice.ineighbour2) / 2][(choice.jneighbour1 + choice.jneighbour2) / 2] = MAZE_CORRIDOR;
+            destroyWall(choice, &newMaze);
+
             allWalls[randomWallIndex] = allWalls[numberOfWalls - 1];
+
             numberOfWalls--;
             numberOfIteration++;
        }
@@ -274,6 +280,16 @@ maze generateMaze(int width, int height, char * name) {
     newMaze.entities[0].x = generateOddNumberBetween(1, width - 1);
     newMaze.entities[0].y = generateOddNumberBetween(1, height - 1);
 
+    if (difficulty == HARDCORE_MODE) {
+        for (int i = 0; i < 1 + numberOfWalls / 20; i++)
+        {
+            int index = rand() % numberOfWalls;
+            destroyWall(allWalls[index], &newMaze);
+            allWalls[index] = allWalls[numberOfWalls - 1];
+            numberOfWalls--;
+        }
+    }
+
     newMaze.numberOfEntity++;
     int numberOfEntity = (rand() % (width * height)) / 8;
     for (int i = 0; i < numberOfEntity; i++) // change number of entity
@@ -281,7 +297,9 @@ maze generateMaze(int width, int height, char * name) {
         newMaze.entities = realloc(newMaze.entities, ((newMaze.numberOfEntity + 1) * sizeof(entity)));
         entity * element = &(newMaze.entities[newMaze.numberOfEntity]);
 
-        newMaze.entities[newMaze.numberOfEntity].type = rand() % 2 == 0 ? TRAP : TREASURE;
+        if (difficulty == HARDCORE_MODE) newMaze.entities[newMaze.numberOfEntity].type = (rand() % TROLL) + 1; // get a random type
+        else newMaze.entities[newMaze.numberOfEntity].type = (rand() % TRAP) + 1;
+
         int x, y;
         do
         {

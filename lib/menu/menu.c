@@ -16,6 +16,7 @@ int mazeCreationHeight = 5;             // the height of the meaz which will be 
 int mazeCreationCurrentFocus = 0;       // the current menu item selected
 maze * newMaze = NULL;                  // the maze created in the creation menu
 char * nameGenerated = NULL;            // the name of the maze created
+bool isCreatingHardcore = false;        // boolean influencing the maze creation
 // load maze
 int loadMazeNumberOfFile = 0;           // the number of save file found
 struct dirent * saveFiles = NULL;       // the array of save file loaded
@@ -65,13 +66,16 @@ void createLeft() {
     case 0:
         if (mazeCreationWidth < 6) { break; } // TODO error
         mazeCreationWidth-=2;
-        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated);
+        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated, isCreatingHardcore ? HARDCORE_MODE : NORMAL_MODE );
         break;
     case 1:
         if (mazeCreationHeight < 6) { break; } // TODO error
         mazeCreationHeight-=2;
-        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated);
+        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated, isCreatingHardcore ? HARDCORE_MODE : NORMAL_MODE );
         break;
+    case 2:
+        isCreatingHardcore = !isCreatingHardcore;
+        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated, isCreatingHardcore ? HARDCORE_MODE : NORMAL_MODE );
     default: break;
     }
 }
@@ -81,26 +85,29 @@ void createRight() {
     {
     case 0:
         mazeCreationWidth+=2;
-        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated);
+        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated, isCreatingHardcore ? HARDCORE_MODE : NORMAL_MODE );
         break;
     case 1:
         mazeCreationHeight+=2;
-        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated);
+        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated, isCreatingHardcore ? HARDCORE_MODE : NORMAL_MODE );
         break;
+    case 2:
+        isCreatingHardcore = !isCreatingHardcore;
+        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated, isCreatingHardcore ? HARDCORE_MODE : NORMAL_MODE );
     default: break;
     }}
 
 void createEnter() {
     switch (mazeCreationCurrentFocus)
     {
-    case 2:
-        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated);
-        break;
     case 3:
+        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated, isCreatingHardcore ? HARDCORE_MODE : NORMAL_MODE );
+        break;
+    case 4:
         changeMenu(SELECTION);
         menuMaze = *newMaze;
         newMaze = NULL;
-    case 4:
+    case 5:
         changeMenu(SELECTION);
         break;
     default: break;
@@ -342,6 +349,7 @@ void createMazeInit(rawTerminal_action *down, rawTerminal_action *up, rawTermina
         newMaze = calloc(1, sizeof(maze));
         mazeCreationCurrentFocus = 0;
         nameGenerated = "newMaze";
+        isCreatingHardcore = false;
 
         down->func.void_function = &createDown;
         up->func.void_function = &createUp;
@@ -351,7 +359,7 @@ void createMazeInit(rawTerminal_action *down, rawTerminal_action *up, rawTermina
         letter->func.void_function = &createLetter;
         backspace->func.void_function = &createBackspace;
 
-        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated);
+        *newMaze = generateMaze(mazeCreationWidth, mazeCreationHeight, nameGenerated, NORMAL_MODE);
 }
 
 void loadMazeInit(rawTerminal_action *down, rawTerminal_action *up, rawTerminal_action *enter) {
@@ -594,6 +602,10 @@ void displayMazeCreation() {
             printf(" ");
             printfColored(YELLOW, DEFAULT_COLOR, BOLD, ">\n");
             printfColored(WHITE, DEFAULT_COLOR, BOLD, "height:\t\t< %d >\n", mazeCreationHeight);
+            printfColored(WHITE, DEFAULT_COLOR, BOLD, "hardcore : ");
+            if (isCreatingHardcore) printfColored(RED, DEFAULT_COLOR, BOLD, "y");
+            else printfColored(GREEN, DEFAULT_COLOR, BOLD, "n");
+            printf("\n");
             printfColored(WHITE, DEFAULT_COLOR, BOLD, "generate\n");
             printfColored(GREEN, DEFAULT_COLOR, BOLD, "load this maze\n");
             printfColored(RED, DEFAULT_COLOR, BOLD, "Back to menu\n");
@@ -606,6 +618,10 @@ void displayMazeCreation() {
             printfColored(BLACK, WHITE, BOLD, "%d", mazeCreationHeight);
             printf(" ");
             printfColored(YELLOW, DEFAULT_COLOR, BOLD, ">\n");
+            printfColored(WHITE, DEFAULT_COLOR, BOLD, "hardcore : ");
+            if (isCreatingHardcore) printfColored(RED, DEFAULT_COLOR, BOLD, "y");
+            else printfColored(GREEN, DEFAULT_COLOR, BOLD, "n");
+            printf("\n");
             printfColored(WHITE, DEFAULT_COLOR, BOLD, "generate\n");
             printfColored(GREEN, DEFAULT_COLOR, BOLD, "load this maze\n");
             printfColored(RED, DEFAULT_COLOR, BOLD, "Back to menu\n");
@@ -613,20 +629,43 @@ void displayMazeCreation() {
         case 2:
             printfColored(WHITE, DEFAULT_COLOR, BOLD, "width :\t\t< %d >\n", mazeCreationWidth);
             printfColored(WHITE, DEFAULT_COLOR, BOLD, "height:\t\t< %d >\n", mazeCreationHeight);
-            printfColored(BLACK, WHITE, BOLD, "generate\n");
+            printfColored(WHITE, DEFAULT_COLOR, BOLD, "hardcore : ");
+            if (isCreatingHardcore) printfColored(RED, WHITE, BOLD, "y");
+            else printfColored(GREEN, WHITE, BOLD, "n");
+            printf("\n");
+            printfColored(WHITE, DEFAULT_COLOR, BOLD, "generate\n");
             printfColored(GREEN, DEFAULT_COLOR, BOLD, "load this maze\n");
             printfColored(RED, DEFAULT_COLOR, BOLD, "Back to menu\n");
             break;
         case 3:
             printfColored(WHITE, DEFAULT_COLOR, BOLD, "width :\t\t< %d >\n", mazeCreationWidth);
             printfColored(WHITE, DEFAULT_COLOR, BOLD, "height:\t\t< %d >\n", mazeCreationHeight);
-            printfColored(WHITE, DEFAULT_COLOR, BOLD, "generate\n");
-            printfColored(WHITE, GREEN, BOLD, "load this maze\n");
+            printfColored(WHITE, DEFAULT_COLOR, BOLD, "hardcore : ");
+            if (isCreatingHardcore) printfColored(RED, DEFAULT_COLOR, BOLD, "y");
+            else printfColored(GREEN, DEFAULT_COLOR, BOLD, "n");
+            printf("\n");
+            printfColored(BLACK, WHITE, BOLD, "generate\n");
+            printfColored(GREEN, DEFAULT_COLOR, BOLD, "load this maze\n");
             printfColored(RED, DEFAULT_COLOR, BOLD, "Back to menu\n");
             break;
         case 4:
             printfColored(WHITE, DEFAULT_COLOR, BOLD, "width :\t\t< %d >\n", mazeCreationWidth);
             printfColored(WHITE, DEFAULT_COLOR, BOLD, "height:\t\t< %d >\n", mazeCreationHeight);
+            printfColored(WHITE, DEFAULT_COLOR, BOLD, "hardcore : ");
+            if (isCreatingHardcore) printfColored(RED, DEFAULT_COLOR, BOLD, "y");
+            else printfColored(GREEN, DEFAULT_COLOR, BOLD, "n");
+            printf("\n");
+            printfColored(WHITE, DEFAULT_COLOR, BOLD, "generate\n");
+            printfColored(WHITE, GREEN, BOLD, "load this maze\n");
+            printfColored(RED, DEFAULT_COLOR, BOLD, "Back to menu\n");
+            break;
+        case 5:
+            printfColored(WHITE, DEFAULT_COLOR, BOLD, "width :\t\t< %d >\n", mazeCreationWidth);
+            printfColored(WHITE, DEFAULT_COLOR, BOLD, "height:\t\t< %d >\n", mazeCreationHeight);
+            printfColored(WHITE, DEFAULT_COLOR, BOLD, "hardcore : ");
+            if (isCreatingHardcore) printfColored(RED, DEFAULT_COLOR, BOLD, "y");
+            else printfColored(GREEN, DEFAULT_COLOR, BOLD, "n");
+            printf("\n");
             printfColored(WHITE, DEFAULT_COLOR, BOLD, "generate\n");
             printfColored(GREEN, DEFAULT_COLOR, BOLD, "load this maze\n");
             printfColored(WHITE, RED, BOLD, "Back to menu\n");
@@ -734,7 +773,7 @@ void launchMenu() {
     makeCursorInvisible();
 
     // initial state of the app
-    menuMaze = generateMaze(10, 10, "startingMaze");
+    menuMaze = generateMaze(10, 10, "startingMaze", NORMAL_MODE);
     changeMenu(SELECTION);
 
     // action in the terminal

@@ -7,10 +7,10 @@
  * mazeElement is an enum defining the values of the different maze elements
 */
 typedef enum {
-    MAZE_ENTRANCE   = 'O',
-    MAZE_WALL       = '#',
-    MAZE_CORRIDOR   = ' ',
-    MAZE_EXIT       = '-'
+    MAZE_ENTRANCE,
+    MAZE_WALL,
+    MAZE_CORRIDOR,
+    MAZE_EXIT
 } mazeElement;
 
 /**
@@ -19,7 +19,9 @@ typedef enum {
 typedef enum {
     KEY,
     TREASURE,
-    TRAP
+    TRAP,
+    GHOST,
+    TROLL
 } entityType;
 
 /**

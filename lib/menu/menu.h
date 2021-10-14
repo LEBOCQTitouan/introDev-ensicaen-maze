@@ -13,9 +13,9 @@
 #include "../mazeDisplay/mazeDisplay.h"
 #include "../mazeHandler/mazeHandler.h"
 // defining all const
-#define LEADERBOARD_FILE "./data/game.score" // the relative path to the leaderboad file storing all leaderboard infos
-#define MAX_NUMBER_OF_SCORE 10 // the max number of score in the leaderBoard
-#define MAZE_CREATION_FOCUS_MAX 5 // the maximal index (menu elements) in the maze creation
+#define LEADERBOARD_FILE "./data/game.score"    // the relative path to the leaderboad file storing all leaderboard infos
+#define MAX_NUMBER_OF_SCORE 10                  // the max number of score in the leaderBoard
+#define MAZE_CREATION_FOCUS_MAX 6               // the maximal index (menu elements) in the maze creation
 
 /**
  * menuType is a type defined from an enum of all the possibles states of the menu
