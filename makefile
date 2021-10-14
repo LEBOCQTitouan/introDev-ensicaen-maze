@@ -1,23 +1,24 @@
 # defining vars
-CC=gcc 				# compiler
+CC=gcc
 
-CFLAGS=-Wall -O 	# compiling flags
+CFLAGS=-Wall -O
 LDFLAGS=
-
-EXEC=app			# name of the app
 
 LIB=lib/
 
 all: $(EXEC)
 
+sources_files:= $(shell find ./lib -name '*.c' -not -path "./lib/minunit/*")
+override object_files= $(sources_files:$(source_directory)/%.c=$(object_directory)/%.o)
+
 # normal app
-app: app.o $(LIB)maze/maze.c $(LIB)mazeDisplay/mazeDisplay.c $(LIB)mazeGenerator/mazeGenerator $(LIB)BetterTerminal/betterTerminal.c $(LIB)mazeHandler/mazeHandler.c $(LIB)menu/menu.c $(LIB)rawTerminal/rawTerminal.c
-	$(CC) -o app app.o $(LIB)maze/maze.c $(LIB)mazeDisplay/mazeDisplay.c $(LIB)mazeGenerator/mazeGenerator $(LIB)BetterTerminal/betterTerminal.c $(LIB)mazeHandler/mazeHandler.c $(LIB)menu/menu.c $(LIB)rawTerminal/rawTerminal.c $(LDFLAGS)
+app: app.o $(object_files)
+	$(CC) -o app app.o $(object_files) $(LDFLAGS)
 	make clean
 
 # make file for TDD
-test: test.o $(LIB)maze/maze.c $(LIB)minunit/minunit.h $(LIB)mazeDisplay/mazeDisplay.c $(LIB)mazeGenerator/mazeGenerator.c $(LIB)BetterTerminal/betterTerminal.c $(LIB)mazeHandler/mazeHandler.c $(LIB)menu/menu.c $(LIB)rawTerminal/rawTerminal.c
-	$(CC) -lrt -lm -o test test.o $(LIB)maze/maze.c $(LIB)minunit/minunit.h $(LIB)mazeDisplay/mazeDisplay.c $(LIB)mazeGenerator/mazeGenerator.c $(LIB)BetterTerminal/betterTerminal.c $(LIB)mazeHandler/mazeHandler.c $(LIB)menu/menu.c $(LIB)rawTerminal/rawTerminal.c $(LDFLAGS)
+test: test.o $(object_files)
+	$(CC) -lrt -lm -o test test.o $(LIB)minunit/minunit.h $(object_files) $(LDFLAGS)
 	make clean
 
 # compiling c mains

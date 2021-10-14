@@ -9,6 +9,7 @@
 // custom
 #include "../maze/maze.h"
 #include "../mazeDisplay/mazeDisplay.h"
+#include "../mazeHandler/mazeHandler.h"
 
 typedef struct
 {

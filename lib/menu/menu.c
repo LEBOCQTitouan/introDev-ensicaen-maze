@@ -490,6 +490,7 @@ void displaySelection() {
         displayLeaderboard();
         printf("\n");
         displayMaze(menuMaze);
+        printf("\n");
         displaySelectionMenu();
 }
 
@@ -592,7 +593,7 @@ void displayPlay() {
 
     printfColored(RED, DEFAULT_COLOR, ITALIC, "press [esc] to return to selection menu");
 
-    printf(""); // reset terminal buffer to correct display errors
+    printf(" "); // reset terminal buffer to correct display errors (space to avoid warnings)
 }
 
 void displaySaveMazeChoice() {

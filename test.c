@@ -1,18 +1,4 @@
-#include "lib/minunit/minunit.h"
-// standard import
-#include <time.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-// custom imports
-#include "lib/maze/maze.h"
-#include "lib/mazeGenerator/mazeGenerator.h"
-#include "lib/mazeDisplay/mazeDisplay.h"
-#include "lib/mazeHandler/mazeHandler.h"
-#include "lib/menu/menu.h"
-
-#define MIN_SIZE 5
-#define MAX_SIZE 200
+#include "test.h"
 
 void gen_random(char *s, const int len) {
     static const char alphanum[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -100,12 +86,8 @@ MU_TEST_SUITE(maze_handler_suite) {
 int main(int argc, char const *argv[]){
     srand(time(NULL));
 
-    // MU_RUN_SUITE(maze_generation_suite);
-    // MU_RUN_SUITE(maze_handler_suite);
-
-    // launchMenu();
-
-    
+    MU_RUN_SUITE(maze_generation_suite);
+    MU_RUN_SUITE(maze_handler_suite);
 
     MU_REPORT();
     return MU_EXIT_CODE;

@@ -3,5 +3,7 @@
         "chrono": "c",
         "algorithm": "c",
         "mazehandler.h": "c"
-    }
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools",
+    "C_Cpp.errorSquiggles": "Disabled"
 }
