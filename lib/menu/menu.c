@@ -234,6 +234,10 @@ void playEsc() {
     changeMenu(SAVE_MAZE_CHOICE);
 }
 
+void playEnter() {
+    saveMaze(*menuMazeHandler.maze);
+}
+
 /** save event listenner */
 void saveChoiceLeft() {
     wouldSaveMaze = !wouldSaveMaze;
@@ -406,7 +410,7 @@ void loadMazeInit(rawTerminal_action *down, rawTerminal_action *up, rawTerminal_
     enter->func.void_function = &loadEnter;
 }
 
-void playInit(rawTerminal_action *down, rawTerminal_action *up, rawTerminal_action *left, rawTerminal_action *right, rawTerminal_action *z, rawTerminal_action *q, rawTerminal_action *s, rawTerminal_action *d, rawTerminal_action *esc) {
+void playInit(rawTerminal_action *down, rawTerminal_action *up, rawTerminal_action *left, rawTerminal_action *right, rawTerminal_action *z, rawTerminal_action *q, rawTerminal_action *s, rawTerminal_action *d, rawTerminal_action *esc, rawTerminal_action * enter) {
         // reseting the data in the maze
         // cleanup reset code
         for (int i = 0; i < menuMaze.numberOfEntity; i++)
@@ -428,6 +432,7 @@ void playInit(rawTerminal_action *down, rawTerminal_action *up, rawTerminal_acti
         d->func.void_function = &playRight;
 
         esc->func.void_function = &playEsc;
+        enter->func.void_function = &playEnter;
 }
 
 void saveMazeInit(rawTerminal_action *left, rawTerminal_action *right, rawTerminal_action *enter) {
@@ -511,7 +516,7 @@ void changeMenu(menuType newMenu) {
         loadMazeInit(&arrowDown, &arrowUp, &enterPressed);
         break;
     case PLAY:
-        playInit(&arrowDown, &arrowUp, &arrowLeft, &arrowRight, &zPressed, &qPressed, &sPressed, &dPressed, &escPressed);
+        playInit(&arrowDown, &arrowUp, &arrowLeft, &arrowRight, &zPressed, &qPressed, &sPressed, &dPressed, &escPressed, &enterPressed);
         break;
     case SAVE_MAZE_CHOICE:
         saveMazeInit(&arrowLeft, &arrowRight, &enterPressed);
@@ -711,6 +716,8 @@ void displayPlay() {
 
     displayMazeWithPlayer(menuMazeHandler);
 
+    printfColored(GREEN, DEFAULT_COLOR, ITALIC, "press [enter] to return to save the maze");
+    printf("\n");
     printfColored(RED, DEFAULT_COLOR, ITALIC, "press [esc] to return to selection menu");
 
     printf(" "); // reset terminal buffer to correct display errors (space to avoid warnings)
@@ -771,6 +778,21 @@ void display() {
 void launchMenu() {
     enableTerminalRawMode();
     makeCursorInvisible();
+
+    if( !access( LEADERBOARD_FILE, F_OK ) == 0 ) {
+        FILE * f = fopen(LEADERBOARD_FILE, "w");
+
+        int writeReturn = 0;
+        for (int i = 0; i < MAX_NUMBER_OF_SCORE; i++)
+        {
+            char * str = calloc(20, sizeof(char));
+            int score = 0;
+            writeReturn = fwrite(str, sizeof(char), 20, f);
+            writeReturn = fwrite(&score, sizeof(int), 1, f);
+        }
+
+        fclose(f);
+    }
 
     // initial state of the app
     menuMaze = generateMaze(10, 10, "startingMaze", NORMAL_MODE);

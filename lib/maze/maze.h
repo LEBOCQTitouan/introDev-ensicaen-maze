@@ -2,6 +2,8 @@
 #define MAZE_H
 
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 /**
  * mazeElement is an enum defining the values of the different maze elements
@@ -24,19 +26,35 @@ typedef enum {
     TROLL
 } entityType;
 
+typedef enum {
+    MOVE_UP = 0,
+    MOVE_DOWN,
+    MOVE_RIGHT,
+    MOVE_LEFT
+} movingDirection;
+
+typedef struct entity_ entity;
+typedef struct maze_ maze;
+
+typedef void (*mobility_action)(int xPlayer, int yPlayer, entity * entity, maze * m);
+
 /**
  * entity is a struct used to describe the entities in the maze (hardcore mode)
 */
-typedef struct {
+struct entity_
+{
     int x, y;
     entityType type;
     bool isAlive;
-} entity;
+
+    mobility_action move;
+};
+
 
 /**
  * maze (struct mazes) is the structure holding all maze data
 */
-typedef struct mazes
+struct maze_
 {
     mazeElement ** elements;
 
@@ -48,6 +66,13 @@ typedef struct mazes
     entity * entities;
     int numberOfEntity;
     bool isUnlocked;
-} maze;
+};
+
+
+int getEntityPenaltyValue(entityType type);
+
+mobility_action getMobilityAction(entityType type);
+
+#include "../mazeHandler/mazeHandler.h"
 
 #endif //MAZE_H

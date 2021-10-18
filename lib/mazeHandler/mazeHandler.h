@@ -56,6 +56,8 @@ bool movePlayer(mazeHandler * handler, directionPlayer direction);
 
 bool isPossibleDirection(mazeHandler handler, directionPlayer direction);
 
+bool isPossibleDirectionFromCoords(maze * m, int x, int y, directionPlayer direction);
+
 /**
  * the isEntityCoord() function will return the index of the entity at x y or -1 if no entity
 */

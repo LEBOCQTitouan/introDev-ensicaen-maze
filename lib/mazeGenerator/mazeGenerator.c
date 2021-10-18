@@ -279,6 +279,7 @@ maze generateMaze(int width, int height, char * name, generation_difficulty diff
     newMaze.entities[0].type = KEY;
     newMaze.entities[0].x = generateOddNumberBetween(1, width - 1);
     newMaze.entities[0].y = generateOddNumberBetween(1, height - 1);
+    newMaze.entities[0].move = getMobilityAction(KEY);
 
     if (difficulty == HARDCORE_MODE) {
         for (int i = 0; i < 1 + numberOfWalls / 20; i++)
@@ -299,6 +300,8 @@ maze generateMaze(int width, int height, char * name, generation_difficulty diff
 
         if (difficulty == HARDCORE_MODE) newMaze.entities[newMaze.numberOfEntity].type = (rand() % TROLL) + 1; // get a random type
         else newMaze.entities[newMaze.numberOfEntity].type = (rand() % TRAP) + 1;
+
+        newMaze.entities[newMaze.numberOfEntity].move = getMobilityAction(newMaze.entities[newMaze.numberOfEntity].type);
 
         int x, y;
         do
