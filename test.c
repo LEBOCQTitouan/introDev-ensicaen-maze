@@ -10,24 +10,24 @@ void gen_random(char *s, const int len) {
     s[len] = 0;
 }
 
-// mu_check(condition): will pass if the condition is evaluated to true, otherwise it will show the condition as the error message
+/*
+mu_check(condition): will pass if the condition is evaluated to true, otherwise it will show the condition as the error message
+mu_fail(message): will fail and show the message
+mu_assert(condition, message): will pass if the condition is true, otherwise it will show the failed condition and the message
+mu_assert_int_eq(expected, result): it will pass if the two numbers are equal or show their values as the error message
+mu_assert_double_eq(expected, result): it will pass if the two values are almost equal or show their values as the error message. The value of MINUNIT_EPSILON sets the threshold to determine if the values are close enough.
+*/
 
-// mu_fail(message): will fail and show the message
-
-// mu_assert(condition, message): will pass if the condition is true, otherwise it will show the failed condition and the message
-
-// mu_assert_int_eq(expected, result): it will pass if the two numbers are equal or show their values as the error message
-
-// mu_assert_double_eq(expected, result): it will pass if the two values are almost equal or show their values as the error message. The value of MINUNIT_EPSILON sets the threshold to determine if the values are close enough.
-
-MU_TEST(even_size_check) { // TODO
+/**TODO*/
+MU_TEST(even_size_check) {
     int width = MIN_SIZE + rand() %  MAX_SIZE,
         height = MIN_SIZE + rand() %  MAX_SIZE;
     maze testMaze = generateMaze(width, height, "test", NORMAL_MODE);
     mu_check(testMaze.width % 2 == 1 && testMaze.height % 2 == 1);
 }
 
-MU_TEST(odd_size_check) { // TODO
+/**TODO*/
+MU_TEST(odd_size_check) {
     int width = MIN_SIZE + rand() % MAX_SIZE,
         height = MIN_SIZE + rand() % MAX_SIZE;
 
@@ -39,7 +39,7 @@ MU_TEST(odd_size_check) { // TODO
 }
 
 MU_TEST(solve_maze_check) {
-    // TODO solve maze
+    /* TODO solve maze */
 }
 
 MU_TEST_SUITE(maze_generation_suite) {
@@ -48,14 +48,13 @@ MU_TEST_SUITE(maze_generation_suite) {
     MU_RUN_TEST(solve_maze_check);
 }
 
-// TODO entities
+/* TODO entities */
 MU_TEST(save_maze_check) {
     char filename[20] = {0};
     gen_random(filename, 20);
     
     maze checkMaze = generateMaze(rand() % 100 + 5, rand() % 100 + 5, filename, NORMAL_MODE);
 
-    // int saveStatus = saveMaze(checkMaze);
     saveMaze(checkMaze);
 
     maze checkMazeLoad = loadMAze(filename);
@@ -72,7 +71,7 @@ MU_TEST(save_maze_check) {
                 || checkMaze.entities[i].y != checkMazeLoad.entities[i].y
                 || checkMaze.entities[i].type != checkMazeLoad.entities[i].type
             ) {
-                char * message = calloc(100, sizeof(char)); // danger if too big number
+                char * message = calloc(100, sizeof(char)); /* danger if too big number */
                 sprintf(message, "Loaded maze %d entity differs from initial maze", i);
                 mu_fail(message);
             }
@@ -89,8 +88,10 @@ MU_TEST(save_maze_check) {
     remove(pathToFile);
 }
 
-// TODO check if move out of the maze is possible
-// TODO check move
+/*
+TODO check if move out of the maze is possible
+TODO check move
+*/
 MU_TEST_SUITE(maze_handler_suite) {
     MU_RUN_TEST(save_maze_check);
 }
