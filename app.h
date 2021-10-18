@@ -2,7 +2,7 @@
 #define APP_H
 
 #include <stdio.h>
-// custom import
+/* custom import */
 #include "lib/menu/menu.h"
 
-#endif //APP_H
+#endif /* APP_H */
