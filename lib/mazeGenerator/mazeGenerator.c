@@ -108,9 +108,11 @@ int compareSidesOfWall(matrix m, wall w) {
     else return -1;
 }
 
-// TODO -> no auto translate to even 
-// TODO -> use odd number instead of storing wall positions + no positionnal matrix
-// TODO -> optimisation propagation
+/*
+TODO -> no auto translate to even 
+TODO -> use odd number instead of storing wall positions + no positionnal matrix
+TODO -> optimisation propagation
+*/
 /**
  * initMaze() will init a maze of the given size for the random generation algorythm
  * 
@@ -127,7 +129,7 @@ maze initMaze(int width, int height) {
     newMaze.elements = calloc(width, sizeof(int *));
     for (int i = 0; i < width; i++) newMaze.elements[i] = calloc(height, sizeof(int));
 
-    // maze values init
+    /* maze values init */
     for (int i = 0; i < width; i++)
     {
         for (int j = 0; j < height; j++)
@@ -149,7 +151,7 @@ maze initMaze(int width, int height) {
     return newMaze;
 }
 
-// TODO => opti
+/* TODO => opti ? */
 int generateOddNumberBetween(int min, int max) {
     int oddNumber;
     oddNumber = rand() % max;
@@ -173,11 +175,11 @@ int generateOddNumberBetween(int min, int max) {
  * @return the number of walls in the array
 */
 int initAllWAlls(wall ** walls, int width, int height) {
-    int numberOfWalls = 0; // the total number of walls
+    int numberOfWalls = 0; /* the total number of walls */
     wall * allWalls = NULL;
     for (int j = 1; j < height - 1; j++)
     {
-        bool isEven = (j % 2 == 0); // boolean used to know if the current index is an even index
+        bool isEven = (j % 2 == 0); /* boolean used to know if the current index is an even index */
         for (int i = isEven ? 1 : 2; i < width - 1; i += 2)
         {
             numberOfWalls++;
@@ -212,36 +214,36 @@ maze generateMaze(int width, int height, char * name, generation_difficulty diff
     if (height % 2 == 0) height--;
     srand(time(NULL));
 
-    // allocating space for the new maze
+    /* allocating space for the new maze */
     maze newMaze = initMaze(width, height);
 
-    // adding name
+    /* adding name */
     newMaze.name = name;
 
-    // generating maze walls
+    /* generating maze walls */
     matrix numMatrix = generateMazeMatrixNumbers(newMaze);
     wall * allWalls = NULL;
     int numberOfWalls = initAllWAlls(&allWalls, width, height);
 
-    // creating the maze by destructing walls
+    /* creating the maze by destructing walls */
     int randomWallIndex;
     int compareSidesOfWallValue;
     int numberOfIteration = 0;
     do {
-        // pick a wall randomly
+        /* pick a wall randomly */
         randomWallIndex = rand() % numberOfWalls;
         wall choice = allWalls[randomWallIndex];
-        // compare both side of the wall
+        /*compare both side of the wall */
         compareSidesOfWallValue = compareSidesOfWall(numMatrix, choice);
 
        if (compareSidesOfWallValue != 0) {
-           // matrix edition
+           /* matrix edition */
             int i1 = getMatrixIndexFromMazeIndex(choice.ineighbour1),
                 j1 = getMatrixIndexFromMazeIndex(choice.jneighbour1),
                 i2 = getMatrixIndexFromMazeIndex(choice.ineighbour2),
                 j2 = getMatrixIndexFromMazeIndex(choice.jneighbour2);
         
-            if (compareSidesOfWallValue == 1) { // n1 > n2
+            if (compareSidesOfWallValue == 1) { /* n1 > n2 */
                 int oldValue = numMatrix.columns[i1][j1];
                 numMatrix.columns[i1][j1] = numMatrix.columns[i2][j2];
                 for (int i = 0; i < numMatrix.width; i++)
@@ -251,7 +253,7 @@ maze generateMaze(int width, int height, char * name, generation_difficulty diff
                         if (numMatrix.columns[i][j] == oldValue) numMatrix.columns[i][j] = numMatrix.columns[i1][j1];
                     }
                 }
-            } else { // n2 > n1
+            } else { /* n2 > n1 */
                 int oldValue = numMatrix.columns[i2][j2];
                 numMatrix.columns[i2][j2] = numMatrix.columns[i1][j1];
                 for (int i = 0; i < numMatrix.width; i++)
@@ -263,7 +265,7 @@ maze generateMaze(int width, int height, char * name, generation_difficulty diff
                     
                 }
             }
-            // make the wall in the maze
+            /* make the wall in the maze */
             destroyWall(choice, &newMaze);
 
             allWalls[randomWallIndex] = allWalls[numberOfWalls - 1];
@@ -293,12 +295,12 @@ maze generateMaze(int width, int height, char * name, generation_difficulty diff
 
     newMaze.numberOfEntity++;
     int numberOfEntity = (rand() % (width * height)) / 8;
-    for (int i = 0; i < numberOfEntity; i++) // change number of entity
+    for (int i = 0; i < numberOfEntity; i++) /* change number of entity */
     {
         newMaze.entities = realloc(newMaze.entities, ((newMaze.numberOfEntity + 1) * sizeof(entity)));
         entity * element = &(newMaze.entities[newMaze.numberOfEntity]);
 
-        if (difficulty == HARDCORE_MODE) newMaze.entities[newMaze.numberOfEntity].type = (rand() % TROLL) + 1; // get a random type
+        if (difficulty == HARDCORE_MODE) newMaze.entities[newMaze.numberOfEntity].type = (rand() % TROLL) + 1; /* get a random type */
         else newMaze.entities[newMaze.numberOfEntity].type = (rand() % TRAP) + 1;
 
         newMaze.entities[newMaze.numberOfEntity].move = getMobilityAction(newMaze.entities[newMaze.numberOfEntity].type);

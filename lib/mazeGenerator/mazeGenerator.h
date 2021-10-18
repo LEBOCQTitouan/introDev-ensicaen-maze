@@ -1,12 +1,12 @@
 #ifndef MAZE_GENERATOR_H
 #define MAZE_GENERATOR_H
 
-// standard
+/* standard */
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
-// custom
+/* custom */
 #include "../maze/maze.h"
 #include "../mazeDisplay/mazeDisplay.h"
 #include "../mazeHandler/mazeHandler.h"
@@ -36,4 +36,4 @@ typedef enum generation_difficulties {
 
 maze generateMaze(int width, int height, char * name, generation_difficulty difficulty);
 
-#endif //MAZE_GENERATOR_H
+#endif /* MAZE_GENERATOR_H */
