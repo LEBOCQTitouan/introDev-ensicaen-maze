@@ -11,7 +11,7 @@ int getEntityPenaltyValue(entityType type) {
     }
 }
 
-void defaultAction(int xPlayer, int yPlayer, entity * en, maze * m) { return; } // default action do nothing
+void defaultAction(int xPlayer, int yPlayer, entity * en, maze * m) { return; }
 
 void ghostAction(int xPlayer, int yPlayer, entity * en, maze * m) {
     en->x = rand() % m->width;

@@ -75,4 +75,4 @@ mobility_action getMobilityAction(entityType type);
 
 #include "../mazeHandler/mazeHandler.h"
 
-#endif //MAZE_H
+#endif /* MAZE_H */
